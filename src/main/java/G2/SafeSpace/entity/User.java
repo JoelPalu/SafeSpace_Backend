@@ -8,31 +8,31 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private int userID;
 
-    @Column(unique = true, nullable = false)
-    private String username;
+    @Column
+    private String Username;
 
-    @Column(nullable = false)
+    @Column
     private String password;
 
     @Column
-    private String bio;
+    private String Bio;
 
-    @Column(nullable = false)
+    @Column
     private String dateOfCreation;
 
     @Column
-    private int profilePictureID;
+    private int ProfilePictureID;
 
     public User() {}
 
-    public int getId() {
-        return id;
+    public int getUserID() {
+        return userID;
     }
 
     public String getUsername() {
-        return username;
+        return Username;
     }
 
     public String getPassword() {
@@ -40,7 +40,7 @@ public class User {
     }
 
     public String getBio() {
-        return bio;
+        return Bio;
     }
 
     public String getDateOfCreation() {
@@ -48,11 +48,11 @@ public class User {
     }
 
     public int getProfilePictureID() {
-        return profilePictureID;
+        return ProfilePictureID;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUsername(String Username) {
+        this.Username = Username;
     }
 
     public void setPassword(String password) {
@@ -60,10 +60,10 @@ public class User {
     }
 
     public void setBio(String bio) {
-        this.bio = bio;
+        this.Bio = bio;
     }
 
     public void setProfilePictureID(int profilePictureID) {
-        this.profilePictureID = profilePictureID;
+        this.ProfilePictureID = profilePictureID;
     }
 }

@@ -25,6 +25,7 @@ public class UserService {
 
     public List<User> findAllUsers() {
         try {
+            System.out.println("service" + userRepository.findAll());
             return userRepository.findAll();
         } catch (RuntimeException e) {
             throw new RuntimeException("Could not find all users " + e.getMessage());

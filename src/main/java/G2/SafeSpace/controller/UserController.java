@@ -1,6 +1,8 @@
 package G2.SafeSpace.controller;
 
 import G2.SafeSpace.entity.User;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import G2.SafeSpace.service.UserService;
@@ -12,6 +14,7 @@ import java.util.Optional;
 @RequestMapping("/api/v1")
 public class UserController {
 
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -29,6 +32,8 @@ public class UserController {
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.findAllUsers();
+        System.out.println(userService.findAllUsers());
+        System.out.println("controller" + users);
         return ResponseEntity.ok(users);
     }
 
