@@ -25,14 +25,13 @@ public class UserService {
 
     public List<User> findAllUsers() {
         try {
-            System.out.println("service" + userRepository.findAll());
             return userRepository.findAll();
         } catch (RuntimeException e) {
             throw new RuntimeException("Could not find all users " + e.getMessage());
         }
     }
 
-    public Optional<User> findUserById(Long id) {
+    public Optional<User> findUserById(int id) {
         try {
             return userRepository.findById(id);
         } catch (Exception e) {
@@ -40,7 +39,7 @@ public class UserService {
         }
     }
 
-    public Optional<User> updateUser(Long id, User updatedUser) {
+    public Optional<User> updateUser(int id, User updatedUser) {
         try {
             Optional<User> existingUserOptional = userRepository.findById(id);
             if (existingUserOptional.isPresent()) {
@@ -57,7 +56,7 @@ public class UserService {
         }
     }
 
-    public boolean deleteUser(Long id) {
+    public boolean deleteUser(int id) {
         try {
             userRepository.deleteById(id);
             return true;

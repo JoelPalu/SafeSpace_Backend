@@ -23,7 +23,7 @@ public class User {
     private String dateOfCreation;
 
     @Column
-    private int ProfilePictureID;
+    private String ProfilePictureID;
 
     public User() {}
 
@@ -47,7 +47,7 @@ public class User {
         return dateOfCreation;
     }
 
-    public int getProfilePictureID() {
+    public String getProfilePictureID() {
         return ProfilePictureID;
     }
 
@@ -63,7 +63,7 @@ public class User {
         this.Bio = bio;
     }
 
-    public void setProfilePictureID(int profilePictureID) {
+    public void setProfilePictureID(String profilePictureID) {
         this.ProfilePictureID = profilePictureID;
     }
 }
