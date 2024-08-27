@@ -19,7 +19,7 @@ public class UserService {
         try {
             return userRepository.save(user);
         } catch (Exception e) {
-            throw new RuntimeException("User creation failed" + e.getMessage());
+            throw new RuntimeException("User creation failed " + e.getMessage());
         }
     }
 
@@ -58,10 +58,28 @@ public class UserService {
 
     public boolean deleteUser(int id) {
         try {
-            userRepository.deleteById(id);
-            return true;
+            Optional<User> optionalUser = userRepository.findById(id);
+            if (optionalUser.isPresent()) {
+                userRepository.deleteById(id);
+                return true;
+            } else return false;
         } catch (Exception e) {
             throw new RuntimeException("Failed to delete user " + id + " " + e.getMessage());
+        }
+    }
+
+    public User findUserByUsername(String username) {
+        try {
+            List<User> optionalUsers = userRepository.findAll();
+            if (!optionalUsers.isEmpty()) {
+                for (User user : optionalUsers) {
+                    if (user.getUsername().equalsIgnoreCase(username)) {
+                        return user;
+                    }
+                }
+            } return null;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to find user " + username + " " + e.getMessage());
         }
     }
 }
