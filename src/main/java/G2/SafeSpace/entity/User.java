@@ -10,20 +10,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int userID;
 
-    @Column
+    @Column(nullable = false)
     private String Username;
 
-    @Column
+    @Column(nullable = false)
     private String password;
 
     @Column
     private String Bio;
 
-    @Column
-    private String dateOfCreation;
-
-    @Column
+    @Column(insertable = false)
     private String ProfilePictureID;
+
+    @Column(insertable = false, updatable = false)
+    private String dateOfCreation;
 
     public User() {}
 
