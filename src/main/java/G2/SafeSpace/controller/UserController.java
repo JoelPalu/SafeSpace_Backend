@@ -43,11 +43,33 @@ public class UserController {
         }
     }
 
+    //get user by username
+    @GetMapping("/users/search")
+    public ResponseEntity<User> getUserByName(@RequestParam String name) {
+        User user = userService.findUserByUsername(name);
+        if (user != null) {
+            return ResponseEntity.ok(user);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    //update user
     @PutMapping("/users/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody User user) {
-        Optional<User> updatedUserOptional = userService.updateUser(id, user);
+    public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody User updatedUser) {
+        Optional<User> updatedUserOptional = userService.updateUser(id, updatedUser);
         if (updatedUserOptional.isPresent()) {
             return ResponseEntity.ok(updatedUserOptional.get());
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<User> deleteUser(@PathVariable int id) {
+        boolean deletedUserOptional = userService.deleteUser(id);
+        if (deletedUserOptional) {
+            return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.notFound().build();
         }
