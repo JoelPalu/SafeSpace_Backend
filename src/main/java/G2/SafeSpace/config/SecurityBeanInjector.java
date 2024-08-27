@@ -1,6 +1,7 @@
 package G2.SafeSpace.config;
 
 import G2.SafeSpace.repository.UserRepository;
+import G2.SafeSpace.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component;
 public class SecurityBeanInjector {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -41,8 +42,8 @@ public class SecurityBeanInjector {
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> {
-            return userRepository.findByUsername(username)
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+            return userRepository.findUserByUsername(username);
+
         };
     }
 }

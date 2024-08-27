@@ -82,4 +82,8 @@ public class UserService {
             throw new RuntimeException("Failed to find user " + username + " " + e.getMessage());
         }
     }
+
+    public void save(User user) {
+        userRepository.save(user);
+    }
 }

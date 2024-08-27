@@ -3,6 +3,7 @@ package G2.SafeSpace.authentication;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.repository.UserRepository;
 import G2.SafeSpace.config.JwtService;
+import G2.SafeSpace.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,7 +20,7 @@ public class AuthenticationService {
     private AuthenticationManager authenticationManager;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userRepository;
 
     @Autowired
     private JwtService jwtService;
@@ -42,7 +43,7 @@ public class AuthenticationService {
 
 
     public AuthenticationResponce login(AuthenticationRequest request) {
-
+        System.out.println("Menee tänne!");
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 request.getUsername(),
                 request.getPassword()
@@ -50,7 +51,9 @@ public class AuthenticationService {
 
         authenticationManager.authenticate(token);
 
-        User user = userRepository.findByUsername(request.getUsername()).get();
+        User user = userRepository.findUserByUsername(request.getUsername()).get();
+
+        System.out.println(user);
 
         String jwt = jwtService.generateToken(user, generateExtraClaims(user));
 

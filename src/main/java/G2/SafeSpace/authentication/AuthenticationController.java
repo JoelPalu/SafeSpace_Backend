@@ -25,6 +25,7 @@ public class AuthenticationController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponce> authenticate(@RequestBody AuthenticationRequest request) {
+        System.out.println("Menee CONTROLLERIIN!");
         return ResponseEntity.ok(authenticationService.login(request));
     }
 }

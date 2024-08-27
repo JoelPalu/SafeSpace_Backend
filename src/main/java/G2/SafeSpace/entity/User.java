@@ -98,4 +98,8 @@ public class User implements UserDetails {
     public void setProfilePictureID(String profilePictureID) {
         this.ProfilePictureID = profilePictureID;
     }
+
+    public User get() {
+        return this;
+    }
 }

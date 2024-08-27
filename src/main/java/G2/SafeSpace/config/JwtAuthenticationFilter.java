@@ -2,6 +2,7 @@ package G2.SafeSpace.config;
 
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.repository.UserRepository;
+import G2.SafeSpace.service.UserService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private JwtService jwtService;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userRepository;
 
 
 
@@ -47,12 +48,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = jwtService.extractUsername(jwt);
 
         //4. set authenticate object inside security context
-        User user = userRepository.findByUsername(username).get();
+        User user = userRepository.findUserByUsername(username).get();
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 username, null, user.getAuthorities()
         );
-
         SecurityContextHolder.getContext().setAuthentication(authToken);
 
         //5. continue the filter chain
