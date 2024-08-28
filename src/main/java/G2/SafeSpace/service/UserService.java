@@ -43,11 +43,28 @@ public class UserService {
         try {
             Optional<User> existingUserOptional = userRepository.findById(id);
             if (existingUserOptional.isPresent()) {
+
+                String username = updatedUser.getUsername();
+                String password = updatedUser.getPassword();
+                String bio = updatedUser.getBio();
+                String profilepictureID = updatedUser.getProfilePictureID();
+
                 User existingUser = existingUserOptional.get();
-                existingUser.setUsername(updatedUser.getUsername());
-                existingUser.setPassword(updatedUser.getPassword());
-                existingUser.setBio(updatedUser.getBio());
-                existingUser.setProfilePictureID(updatedUser.getProfilePictureID());
+
+                if (!existingUser.getUsername().equals(username) && !username.trim().isEmpty()) {
+                    existingUser.setUsername(username);
+                }
+                if (!existingUser.getPassword().equals(password) && !password.trim().isEmpty()) {
+                    existingUser.setPassword(password);
+                }
+
+                existingUser.setBio(bio);
+
+
+                if (!existingUser.getProfilePictureID().equals(profilepictureID)) {
+                    existingUser.setProfilePictureID(profilepictureID);
+                }
+
                 User savedUser = userRepository.save(existingUser);
                 return Optional.of(savedUser);
             } else return Optional.empty();
