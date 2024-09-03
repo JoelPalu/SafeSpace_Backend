@@ -51,17 +51,24 @@ public class UserService {
 
                 User existingUser = existingUserOptional.get();
 
-                if (!existingUser.getUsername().equals(username) && !username.trim().isEmpty()) {
+                if (!existingUser.getUsername().equals(username) && username != null && !username.trim().isEmpty()) {
                     existingUser.setUsername(username);
                 }
-                if (!existingUser.getPassword().equals(password) && !password.trim().isEmpty()) {
+                if (!existingUser.getPassword().equals(password) && password != null && !password.trim().isEmpty()) {
                     existingUser.setPassword(password);
                 }
 
-                existingUser.setBio(bio);
+                //bio updating, null should be sent if no changes were made
+                //empty string if user wants to clear the bio
+                if (bio != null && !bio.equals(existingUser.getBio())) {
+                    if (bio.trim().isEmpty()) {
+                        existingUser.setBio(null);
+                    } else {
+                        existingUser.setBio(bio.trim());
+                    }
+                }
 
-
-                if (!existingUser.getProfilePictureID().equals(profilepictureID)) {
+                if (!existingUser.getProfilePictureID().equals(profilepictureID) && profilepictureID != null) {
                     existingUser.setProfilePictureID(profilepictureID);
                 }
 
