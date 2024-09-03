@@ -17,6 +17,8 @@ public class UserService {
 
     public User createUser(User user) {
         try {
+            user.setBio(null);
+            user.setProfilePictureID("default");
             return userRepository.save(user);
         } catch (Exception e) {
             throw new RuntimeException("User creation failed " + e.getMessage());

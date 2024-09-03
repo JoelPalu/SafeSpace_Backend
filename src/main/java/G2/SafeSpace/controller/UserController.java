@@ -22,12 +22,14 @@ public class UserController {
     //create user
     @PostMapping("/users")
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        if (userService.checkUsernameAvailability(user.getUsername())) {
-            User createdUser = userService.createUser(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        if (user.getUsername() != null && user.getPassword() != null) {
+            if (userService.checkUsernameAvailability(user.getUsername())) {
+                User createdUser = userService.createUser(user);
+                return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+            } else {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+        } return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     //get all users
