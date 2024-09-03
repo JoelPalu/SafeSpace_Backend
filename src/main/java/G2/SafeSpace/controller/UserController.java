@@ -29,6 +29,9 @@ public class UserController {
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.findAllUsers();
+        for (User user : users) {
+            user.setPassword(null);
+        }
         return ResponseEntity.ok(users);
     }
 
@@ -37,6 +40,7 @@ public class UserController {
     public ResponseEntity<User> getUserById(@PathVariable int id) {
         Optional<User> userOptional = userService.findUserById(id);
         if (userOptional.isPresent()) {
+            userOptional.get().setPassword(null);
             return ResponseEntity.ok(userOptional.get());
         } else {
             return ResponseEntity.notFound().build();
