@@ -31,6 +31,23 @@ public class UserService {
         }
     }
 
+    public boolean checkUsernameAvailability(String username) {
+        List<User> users = findAllUsers();
+        boolean taken = false;
+        if (!users.isEmpty()) {
+            for (User user : users) {
+                if (user.getUsername().equals(username)) {
+                    taken = true;
+                    break;
+                }
+            }
+            return !taken;
+        }
+        return false;
+    }
+
+
+
     public Optional<User> findUserById(int id) {
         try {
             return userRepository.findById(id);
