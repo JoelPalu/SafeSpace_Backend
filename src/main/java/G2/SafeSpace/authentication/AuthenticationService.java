@@ -1,7 +1,6 @@
 package G2.SafeSpace.authentication;
 
 import G2.SafeSpace.entity.User;
-import G2.SafeSpace.repository.UserRepository;
 import G2.SafeSpace.config.JwtService;
 import G2.SafeSpace.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,7 @@ public class AuthenticationService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public AuthenticationResponce register(User request){
+    public AuthenticationResponse register(User request){
         var user = new User();
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -43,11 +42,11 @@ public class AuthenticationService {
 
         userRepository.createUser(user);
         String token = jwtService.generateToken(user, generateExtraClaims(user));
-        return new AuthenticationResponce(token , user);
+        return new AuthenticationResponse(token , user);
     }
 
 
-    public AuthenticationResponce login(AuthenticationRequest request) {
+    public AuthenticationResponse login(AuthenticationRequest request) {
         System.out.println("Menee tänne!");
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 request.getUsername(),
@@ -62,13 +61,13 @@ public class AuthenticationService {
 
         String jwt = jwtService.generateToken(user, generateExtraClaims(user));
 
-        return new AuthenticationResponce(jwt, user);
+        return new AuthenticationResponse(jwt, user);
 
 
     }
 
-    public AuthenticationResponce error(String error) {
-        return new AuthenticationResponce(error, new User());
+    public AuthenticationResponse error(String error) {
+        return new AuthenticationResponse(error, new User());
     }
 
     private Map<String, Object> generateExtraClaims(User user) {

@@ -2,12 +2,12 @@ package G2.SafeSpace.authentication;
 
 import G2.SafeSpace.entity.User;
 
-public class AuthenticationResponce {
+public class AuthenticationResponse {
 
     private String jwt;
     private User user;
 
-    public AuthenticationResponce(String jwt, User user) {
+    public AuthenticationResponse(String jwt, User user) {
         this.jwt = jwt;
         this.user = user;
         this.user.setPassword(null);
