@@ -40,9 +40,10 @@ public class UserService {
 
 
 
-    public Optional<User> findUserById(int id) {
+    public User findUserById(int id) {
         try {
-            return userRepository.findById(id);
+            Optional<User> user = userRepository.findById(id);
+            return user.orElse(null);
         } catch (Exception e) {
             throw new RuntimeException("Failed to find user by id" + id + " " + e.getMessage());
         }
