@@ -17,6 +17,8 @@ public class UserService {
 
     public User createUser(User user) {
         try {
+            user.setBio(null);
+            user.setProfilePictureID("default");
             return userRepository.save(user);
         } catch (Exception e) {
             throw new RuntimeException("User creation failed " + e.getMessage());
@@ -30,6 +32,23 @@ public class UserService {
             throw new RuntimeException("Could not find all users " + e.getMessage());
         }
     }
+
+    public boolean checkUsernameAvailability(String username) {
+        List<User> users = findAllUsers();
+        boolean taken = false;
+        if (!users.isEmpty()) {
+            for (User user : users) {
+                if (user.getUsername().equals(username)) {
+                    taken = true;
+                    break;
+                }
+            }
+            return !taken;
+        }
+        return false;
+    }
+
+
 
     public Optional<User> findUserById(int id) {
         try {
@@ -51,17 +70,24 @@ public class UserService {
 
                 User existingUser = existingUserOptional.get();
 
-                if (!existingUser.getUsername().equals(username) && !username.trim().isEmpty()) {
+                if (!existingUser.getUsername().equals(username) && username != null && !username.trim().isEmpty()) {
                     existingUser.setUsername(username);
                 }
-                if (!existingUser.getPassword().equals(password) && !password.trim().isEmpty()) {
+                if (!existingUser.getPassword().equals(password) && password != null && !password.trim().isEmpty()) {
                     existingUser.setPassword(password);
                 }
 
-                existingUser.setBio(bio);
+                //bio updating, null should be sent if no changes were made
+                //empty string if user wants to clear the bio
+                if (bio != null && !bio.equals(existingUser.getBio())) {
+                    if (bio.trim().isEmpty()) {
+                        existingUser.setBio(null);
+                    } else {
+                        existingUser.setBio(bio.trim());
+                    }
+                }
 
-
-                if (!existingUser.getProfilePictureID().equals(profilepictureID)) {
+                if (!existingUser.getProfilePictureID().equals(profilepictureID) && profilepictureID != null) {
                     existingUser.setProfilePictureID(profilepictureID);
                 }
 
@@ -98,5 +124,9 @@ public class UserService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to find user " + username + " " + e.getMessage());
         }
+    }
+
+    public void save(User user) {
+        userRepository.save(user);
     }
 }
