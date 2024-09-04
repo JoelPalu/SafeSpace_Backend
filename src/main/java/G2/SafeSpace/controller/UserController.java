@@ -19,19 +19,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    //create user
-    @PostMapping("/users")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        if (user.getUsername() != null && user.getPassword() != null) {
-            if (userService.checkUsernameAvailability(user.getUsername())) {
-                User createdUser = userService.createUser(user);
-                return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
-            } else {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
-        } return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-
     //get all users
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {

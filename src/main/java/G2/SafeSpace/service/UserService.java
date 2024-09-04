@@ -15,16 +15,6 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User createUser(User user) {
-        try {
-            user.setBio(null);
-            user.setProfilePictureID("default");
-            return userRepository.save(user);
-        } catch (Exception e) {
-            throw new RuntimeException("User creation failed " + e.getMessage());
-        }
-    }
-
     public List<User> findAllUsers() {
         try {
             return userRepository.findAll();
@@ -126,7 +116,7 @@ public class UserService {
         }
     }
 
-    public void save(User user) {
-        userRepository.save(user);
+    public User save(User user) {
+        return userRepository.save(user);
     }
 }

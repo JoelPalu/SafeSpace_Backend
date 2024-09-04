@@ -1,8 +1,10 @@
-package G2.SafeSpace.authentication;
+package G2.SafeSpace.service;
 
+import G2.SafeSpace.authentication.AuthenticationRequest;
+import G2.SafeSpace.authentication.AuthenticationResponse;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.config.JwtService;
-import G2.SafeSpace.service.UserService;
+import G2.SafeSpace.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,59 +17,47 @@ import java.util.Map;
 @Service
 public class AuthenticationService {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private UserService userRepository;
-
-    @Autowired
-    private JwtService jwtService;
-
+    private final AuthenticationManager authenticationManager;
+    private final UserService userService;
+    private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthenticationService(PasswordEncoder passwordEncoder) {
+    @Autowired
+    public AuthenticationService(AuthenticationManager authenticationManager,
+                                 UserService userService,
+                                 JwtService jwtService,
+                                 PasswordEncoder passwordEncoder) {
+        this.authenticationManager = authenticationManager;
+        this.userService = userService;
+        this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public AuthenticationResponse register(User request){
-        var user = new User();
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+    public AuthenticationResponse register(User request) {
 
-        var userExists = userRepository.findUserByUsername(user.getUsername());
-        if (userExists != null) {
-            return error("Username already exists");
-        }
+        request.setUsername(request.getUsername().trim());
+        request.setPassword(passwordEncoder.encode(request.getPassword().trim()));
+        request.setBio(null);
+        request.setProfilePictureID("default");
 
-        userRepository.createUser(user);
-        String token = jwtService.generateToken(user, generateExtraClaims(user));
-        return new AuthenticationResponse(token , user);
+        String token = jwtService.generateToken(request, generateExtraClaims(request));
+        return new AuthenticationResponse(token , userService.save(request));
     }
 
 
     public AuthenticationResponse login(AuthenticationRequest request) {
-        System.out.println("Menee tänne!");
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 request.getUsername(),
                 request.getPassword()
         );
 
         authenticationManager.authenticate(token);
-
-        User user = userRepository.findUserByUsername(request.getUsername()).get();
-
-        System.out.println(user);
-
+        User user = userService.findUserByUsername(request.getUsername());
         String jwt = jwtService.generateToken(user, generateExtraClaims(user));
 
         return new AuthenticationResponse(jwt, user);
 
 
-    }
-
-    public AuthenticationResponse error(String error) {
-        return new AuthenticationResponse(error, new User());
     }
 
     private Map<String, Object> generateExtraClaims(User user) {
