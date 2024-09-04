@@ -50,9 +50,13 @@ public class JwtService {
     }
 
     private Claims extractedAllClaims(String jwt) {
-        return Jwts.parser().setSigningKey(generateKey())
-                .build()
-                .parseClaimsJws(jwt)
-                .getBody();
+        try{
+            return Jwts.parser().setSigningKey(generateKey())
+                    .build()
+                    .parseClaimsJws(jwt)
+                    .getBody();
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

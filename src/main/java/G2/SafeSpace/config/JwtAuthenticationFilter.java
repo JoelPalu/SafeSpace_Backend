@@ -44,8 +44,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = authHeader.split(" ")[1];
 
         //3. obtain subject in jwt
+        String username = null;
+        try{
+            username = jwtService.extractUsername(jwt);
+        } catch (Exception e) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
+            return;
+        }
 
-        String username = jwtService.extractUsername(jwt);
+
+
 
         //4. set authenticate object inside security context
         User user = userRepository.findUserByUsername(username).get();
