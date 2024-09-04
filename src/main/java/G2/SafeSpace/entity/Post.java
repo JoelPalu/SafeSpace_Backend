@@ -2,6 +2,9 @@ package G2.SafeSpace.entity;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -18,6 +21,9 @@ public class Post {
 
     @Column(insertable = false, updatable = false)
     private String Post_date;
+
+    @ManyToMany(mappedBy = "posts")
+    private Set<User> users = new HashSet<>();
 
     public Post() {}
 
@@ -43,6 +49,24 @@ public class Post {
 
     public void setPost_pictureID(String post_pictureID) {
         this.Post_pictureID = post_pictureID;
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void addUser(User user) {
+        if (user != null) {
+            this.users.add(user);
+            user.getPosts().add(this);
+        }
+    }
+
+    public void removeUser(User user) {
+        if (user != null) {
+            this.users.remove(user);
+            user.getPosts().remove(this);
+        }
     }
 
     public void getPostDetails() {
