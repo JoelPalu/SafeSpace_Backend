@@ -36,9 +36,14 @@ public class AuthenticationService {
         user.setUsername(request.getUsername());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        userRepository.save(user);
+        var userExists = userRepository.findUserByUsername(user.getUsername());
+        if (userExists != null) {
+            return error("Username already exists");
+        }
+
+        userRepository.createUser(user);
         String token = jwtService.generateToken(user, generateExtraClaims(user));
-        return new AuthenticationResponce(token);
+        return new AuthenticationResponce(token , user);
     }
 
 
@@ -57,9 +62,13 @@ public class AuthenticationService {
 
         String jwt = jwtService.generateToken(user, generateExtraClaims(user));
 
-        return new AuthenticationResponce(jwt);
+        return new AuthenticationResponce(jwt, user);
 
 
+    }
+
+    public AuthenticationResponce error(String error) {
+        return new AuthenticationResponce(error, new User());
     }
 
     private Map<String, Object> generateExtraClaims(User user) {
