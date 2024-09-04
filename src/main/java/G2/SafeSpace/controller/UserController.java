@@ -39,6 +39,9 @@ public class UserController {
         if (users.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        for (User user : users) {
+            user.setPassword(null);
+        }
         return ResponseEntity.ok(users);
     }
 
@@ -47,6 +50,7 @@ public class UserController {
     public ResponseEntity<User> getUserById(@PathVariable int id) {
         Optional<User> userOptional = userService.findUserById(id);
         if (userOptional.isPresent()) {
+            userOptional.get().setPassword(null);
             return ResponseEntity.ok(userOptional.get());
         } else {
             return ResponseEntity.notFound().build();
