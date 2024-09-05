@@ -6,7 +6,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Entity
@@ -32,14 +34,30 @@ public class User implements UserDetails {
     @Column(insertable = false, updatable = false)
     private String dateOfCreation;
 
+    @ManyToMany
+    @JoinTable(
+            name = "posted",
+            joinColumns = @JoinColumn(name = "userID"),
+            inverseJoinColumns = @JoinColumn(name = "postID")
+    )
+    private Set<Post> posts = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "likes",
+            joinColumns = @JoinColumn(name = "userID"),
+            inverseJoinColumns = @JoinColumn(name = "postID")
+    )
+    private Set<Post> likedPosts = new HashSet<>();
+
     public User() {}
 
     public int getUserID() {
-        return userID;
+        return this.userID;
     }
 
     public String getUsername() {
-        return Username;
+        return this.Username;
     }
 
     @Override
@@ -68,19 +86,19 @@ public class User implements UserDetails {
     }
 
     public String getPassword() {
-        return password;
+        return this.password;
     }
 
     public String getBio() {
-        return Bio;
+        return this.Bio;
     }
 
     public String getDateOfCreation() {
-        return dateOfCreation;
+        return this.dateOfCreation;
     }
 
     public String getProfilePictureID() {
-        return ProfilePictureID;
+        return this.ProfilePictureID;
     }
 
     public void setUsername(String Username) {
@@ -101,5 +119,51 @@ public class User implements UserDetails {
 
     public User get() {
         return this;
+    }
+
+    //FOR DEBUGGING
+    public void getUserDetails() {
+        System.out.println("USERINFO: \n" + "ID: " + this.userID
+                + "\nUSERNAME: " + this.Username
+                + "\nPASSWORD: " + this.password
+                + "\nPROFILEPICTURE_ID: " + this.ProfilePictureID
+                + "\nBIO: " + this.Bio
+                + "\nDATEOFCREATION: " + this.dateOfCreation );
+    }
+
+    public Set<Post> getPosts() {
+        return this.posts;
+    }
+
+    public void addPost(Post post) {
+        if (post != null) {
+            this.posts.add(post);
+            post.getUsers().add(this);
+        }
+    }
+
+    public void removePost(Post post) {
+        if (post != null) {
+            this.posts.remove(post);
+            post.getUsers().remove(this);
+        }
+    }
+
+    public Set<Post> getLikedPosts() {
+        return this.likedPosts;
+    }
+
+    public void addLikedPost(Post post) {
+        if (post != null) {
+            this.likedPosts.add(post);
+            post.getLikedUsers().add(this);
+        }
+    }
+
+    public void removeLikedPost(Post post) {
+        if (post != null) {
+            this.likedPosts.remove(post);
+            post.getLikedUsers().remove(this);
+        }
     }
 }

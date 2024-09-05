@@ -37,6 +37,8 @@ public class SecurityFilter {
                     //authenticated users can access all other endpoints
                     authConfig.requestMatchers("api/v1/users").authenticated();
                     authConfig.requestMatchers("api/v1/users/**").authenticated();
+                    authConfig.requestMatchers("api/v1/post/").authenticated();
+                    authConfig.requestMatchers("api/v1/post/**").authenticated();
 
                     authConfig.anyRequest().denyAll();
 
