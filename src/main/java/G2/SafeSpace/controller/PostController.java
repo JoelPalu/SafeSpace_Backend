@@ -1,5 +1,6 @@
 package G2.SafeSpace.controller;
 
+import G2.SafeSpace.dto.PostCreationRequest;
 import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.service.PostService;
@@ -23,12 +24,39 @@ public class PostController {
         this.userService = userService;
     }
 
-    @PostMapping("/post")
-    public ResponseEntity<Post> createPost(@RequestBody Post post, @RequestParam int userID) {
+    @PostMapping("/post/{postID}/like/{userID}")
+    public ResponseEntity<Post> likePost(@PathVariable int postID, @PathVariable int userID) {
         User user = userService.findUserById(userID);
+        Post post = postService.findPostById(postID);
+        if (post != null && user != null) {
+            user.addLikedPost(post);
+            userService.save(user);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @PostMapping("/post/{postID}/remove/{userID}")
+    public ResponseEntity<Post> removeLike(@PathVariable int postID, @PathVariable int userID) {
+        Post post = postService.findPostById(postID);
+        User user = userService.findUserById(userID);
+        if (post != null && user != null) {
+            user.removeLikedPost(post);
+            userService.save(user);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @PostMapping("/post")
+    public ResponseEntity<Post> createPost(@RequestBody PostCreationRequest request) {
+        User user = userService.findUserById(request.getUserID());
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        Post post = new Post();
+        post.setPost_content(request.getContent());
+        post.setPost_pictureID(request.getPictureID());
         user.addPost(post);
         Post createdPost = postService.createPost(post);
         if (createdPost != null) {

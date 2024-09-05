@@ -25,22 +25,25 @@ public class Post {
     @ManyToMany(mappedBy = "posts")
     private Set<User> users = new HashSet<>();
 
+    @ManyToMany(mappedBy = "likedPosts")
+    private Set<User> likedUsers = new HashSet<>();
+
     public Post() {}
 
     public int getPostID() {
-        return postID;
+        return this.postID;
     }
 
     public String getPost_content() {
-        return Post_content;
+        return this.Post_content;
     }
 
     public String getPost_pictureID() {
-        return Post_pictureID;
+        return this.Post_pictureID;
     }
 
     public String getPost_date() {
-        return Post_date;
+        return this.Post_date;
     }
 
     public void setPost_content(String post_content) {
@@ -52,7 +55,7 @@ public class Post {
     }
 
     public Set<User> getUsers() {
-        return users;
+        return this.users;
     }
 
     public void addUser(User user) {
@@ -69,7 +72,28 @@ public class Post {
         }
     }
 
+    public Set<User> getLikedUsers() {
+        return this.likedUsers;
+    }
+
+    public void addLikedUser(User user) {
+        if (user != null) {
+            this.likedUsers.add(user);
+            user.getLikedPosts().add(this);
+        }
+    }
+
+    public void removeLikedUser(User user) {
+        if (user != null) {
+            this.likedUsers.remove(user);
+            user.getLikedPosts().remove(this);
+        }
+    }
+
     public void getPostDetails() {
-        System.out.println("POST DETAILS:" + "\nID: " + postID + "\nCONTENT: " + Post_content + "\nPICTURE ID: " + Post_pictureID + "\nDATE: " + Post_date);
+        System.out.println("POST DETAILS:" + "\nID: " + postID
+                + "\nCONTENT: " + Post_content
+                + "\nPICTURE ID: " + Post_pictureID
+                + "\nDATE: " + Post_date);
     }
 }

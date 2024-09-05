@@ -42,14 +42,22 @@ public class User implements UserDetails {
     )
     private Set<Post> posts = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "likes",
+            joinColumns = @JoinColumn(name = "userID"),
+            inverseJoinColumns = @JoinColumn(name = "postID")
+    )
+    private Set<Post> likedPosts = new HashSet<>();
+
     public User() {}
 
     public int getUserID() {
-        return userID;
+        return this.userID;
     }
 
     public String getUsername() {
-        return Username;
+        return this.Username;
     }
 
     @Override
@@ -78,19 +86,19 @@ public class User implements UserDetails {
     }
 
     public String getPassword() {
-        return password;
+        return this.password;
     }
 
     public String getBio() {
-        return Bio;
+        return this.Bio;
     }
 
     public String getDateOfCreation() {
-        return dateOfCreation;
+        return this.dateOfCreation;
     }
 
     public String getProfilePictureID() {
-        return ProfilePictureID;
+        return this.ProfilePictureID;
     }
 
     public void setUsername(String Username) {
@@ -113,8 +121,18 @@ public class User implements UserDetails {
         return this;
     }
 
+    //FOR DEBUGGING
+    public void getUserDetails() {
+        System.out.println("USERINFO: \n" + "ID: " + this.userID
+                + "\nUSERNAME: " + this.Username
+                + "\nPASSWORD: " + this.password
+                + "\nPROFILEPICTURE_ID: " + this.ProfilePictureID
+                + "\nBIO: " + this.Bio
+                + "\nDATEOFCREATION: " + this.dateOfCreation );
+    }
+
     public Set<Post> getPosts() {
-        return posts;
+        return this.posts;
     }
 
     public void addPost(Post post) {
@@ -128,6 +146,24 @@ public class User implements UserDetails {
         if (post != null) {
             this.posts.remove(post);
             post.getUsers().remove(this);
+        }
+    }
+
+    public Set<Post> getLikedPosts() {
+        return this.likedPosts;
+    }
+
+    public void addLikedPost(Post post) {
+        if (post != null) {
+            this.likedPosts.add(post);
+            post.getLikedUsers().add(this);
+        }
+    }
+
+    public void removeLikedPost(Post post) {
+        if (post != null) {
+            this.likedPosts.remove(post);
+            post.getLikedUsers().remove(this);
         }
     }
 }
