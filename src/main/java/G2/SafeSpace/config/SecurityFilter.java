@@ -31,7 +31,7 @@ public class SecurityFilter {
                 .authorizeHttpRequests(authConfig -> {
                     //permit all users to access the following endpoints
                     authConfig.requestMatchers(HttpMethod.POST, "/auth/register").permitAll();
-                    authConfig.requestMatchers(HttpMethod.GET, "/auth/login").permitAll();
+                    authConfig.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
                     authConfig.requestMatchers("/error").permitAll();
 
                     //authenticated users can access all other endpoints
