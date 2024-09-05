@@ -35,7 +35,7 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(@RequestBody AuthenticationRequest request) {
         if (userService.findUserByUsername(request.getUsername()) != null && request.getPassword() != null) {
             return ResponseEntity.status(HttpStatus.OK).body(authenticationService.login(request));
