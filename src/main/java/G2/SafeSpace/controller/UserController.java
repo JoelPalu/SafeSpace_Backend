@@ -35,10 +35,10 @@ public class UserController {
     //get user by id
     @GetMapping("/users/{id}")
     public ResponseEntity<User> getUserById(@PathVariable int id) {
-        Optional<User> userOptional = userService.findUserById(id);
-        if (userOptional.isPresent()) {
-            userOptional.get().setPassword(null);
-            return ResponseEntity.ok(userOptional.get());
+        User user = userService.findUserById(id);
+        if (user != null) {
+            user.setPassword(null);
+            return ResponseEntity.ok(user);
         } else {
             return ResponseEntity.notFound().build();
         }
