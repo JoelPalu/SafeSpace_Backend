@@ -50,6 +50,15 @@ public class User implements UserDetails {
     )
     private Set<Post> likedPosts = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "friendship",
+            joinColumns = @JoinColumn(name = "User1"),
+            inverseJoinColumns = @JoinColumn(name = "User2")
+    )
+
+    private Set<User> friends = new HashSet<>();
+
     public User() {}
 
     public int getUserID() {
@@ -166,4 +175,23 @@ public class User implements UserDetails {
             post.getLikedUsers().remove(this);
         }
     }
+
+
+    public void addFriends(User user) {
+        if (user != null) {
+            this.friends.add(user);
+        }
+    }
+
+    public void removeFriends(User user) {
+        if (user != null) {
+            this.friends.remove(user);
+        }
+    }
+
+    public Set<User> getFriends() {
+        return this.friends;
+    }
+
+
 }
