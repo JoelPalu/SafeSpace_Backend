@@ -6,6 +6,8 @@ import G2.SafeSpace.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -119,5 +121,36 @@ public class UserService {
 
     public User save(User user) {
         return userRepository.save(user);
+    }
+
+
+    public Optional<User> addFriend(User user, User friend) {
+        try {
+            user.addFriends(friend);
+            userRepository.save(user);
+            return Optional.of(user);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to add friend " + e.getMessage());
+        }
+    }
+
+    public Optional<User> removeFriend(User user, User friend) {
+        try {
+            user.removeFriends(friend);
+            userRepository.save(user);
+            return Optional.of(user);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to remove friend " + e.getMessage());
+        }
+    }
+
+    public List<Integer> getFriends(User user) {
+        try {
+            return user.getFriends().stream()
+                    .map(User::getUserID)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get friend IDs " + e.getMessage());
+        }
     }
 }
