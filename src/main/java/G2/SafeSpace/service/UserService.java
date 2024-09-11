@@ -1,20 +1,30 @@
 package G2.SafeSpace.service;
 
+import G2.SafeSpace.dto.UpdateUserResponse;
 import G2.SafeSpace.entity.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import G2.SafeSpace.repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class UserService {
-    private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository) {
+    private final UserRepository userRepository;
+    private final UserContextService userContextService;
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public UserService(UserRepository userRepository,
+                       UserContextService userContextService,
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.userContextService = userContextService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<User> findAllUsers() {
@@ -51,9 +61,9 @@ public class UserService {
         }
     }
 
-    public Optional<User> updateUser(int id, User updatedUser) {
+    public UpdateUserResponse updateUser(User updatedUser) {
         try {
-            Optional<User> existingUserOptional = userRepository.findById(id);
+            Optional<User> existingUserOptional = userContextService.getCurrentUser();
             if (existingUserOptional.isPresent()) {
 
                 String username = updatedUser.getUsername();
@@ -64,10 +74,14 @@ public class UserService {
                 User existingUser = existingUserOptional.get();
 
                 if (!existingUser.getUsername().equals(username) && username != null && !username.trim().isEmpty()) {
-                    existingUser.setUsername(username);
+                    if (checkUsernameAvailability(username)) {
+                        existingUser.setUsername(username.trim());
+                    } else {
+                        return new UpdateUserResponse(true, false, existingUser);
+                    }
                 }
                 if (!existingUser.getPassword().equals(password) && password != null && !password.trim().isEmpty()) {
-                    existingUser.setPassword(password);
+                    existingUser.setPassword(passwordEncoder.encode(password.trim()));
                 }
 
                 //bio updating, null should be sent if no changes were made
@@ -85,22 +99,22 @@ public class UserService {
                 }
 
                 User savedUser = userRepository.save(existingUser);
-                return Optional.of(savedUser);
-            } else return Optional.empty();
+                return new UpdateUserResponse(false, true, savedUser);
+            } else return null;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to update user " + id + " " + e.getMessage());
+            throw new RuntimeException("Failed to update user " + e.getMessage());
         }
     }
 
-    public boolean deleteUser(int id) {
+    public boolean deleteUser() {
         try {
-            Optional<User> optionalUser = userRepository.findById(id);
-            if (optionalUser.isPresent()) {
-                userRepository.deleteById(id);
+            Optional<User> existingUserOptional = userContextService.getCurrentUser();
+            if (existingUserOptional.isPresent()) {
+                userRepository.deleteById(existingUserOptional.get().getUserID());
                 return true;
             } else return false;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to delete user " + id + " " + e.getMessage());
+            throw new RuntimeException("Failed to delete user " + e.getMessage());
         }
     }
 

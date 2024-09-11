@@ -1,6 +1,8 @@
 package G2.SafeSpace.controller;
 
+import G2.SafeSpace.dto.UpdateUserResponse;
 import G2.SafeSpace.entity.User;
+import G2.SafeSpace.service.UserContextService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -58,19 +60,22 @@ public class UserController {
     }
 
     //update user
-    @PutMapping("/users/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody User updatedUser) {
-        Optional<User> updatedUserOptional = userService.updateUser(id, updatedUser);
-        if (updatedUserOptional.isPresent()) {
-            return ResponseEntity.ok(updatedUserOptional.get());
+    @PutMapping("/users/update")
+    public ResponseEntity<User> updateUser(@RequestBody User updatedUser) {
+        UpdateUserResponse response = userService.updateUser(updatedUser);
+        if (response != null) {
+            if (response.isNameTaken()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+            return ResponseEntity.ok(response.getUser());
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<User> deleteUser(@PathVariable int id) {
-        boolean deletedUserOptional = userService.deleteUser(id);
+    @DeleteMapping("/users/delete")
+    public ResponseEntity<User> deleteUser() {
+        boolean deletedUserOptional = userService.deleteUser();
         if (deletedUserOptional) {
             return ResponseEntity.ok().build();
         } else {
