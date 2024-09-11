@@ -1,9 +1,9 @@
 package G2.SafeSpace.controller;
 
-import G2.SafeSpace.dto.PostCreationRequest;
 import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.service.PostService;
+import G2.SafeSpace.service.UserContextService;
 import G2.SafeSpace.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,24 +11,30 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/v1")
 public class PostController {
     private final PostService postService;
     private final UserService userService;
+    private final UserContextService userContextService;
 
     @Autowired
-    public PostController(PostService postService, UserService userService) {
+    public PostController(PostService postService,
+                          UserService userService,
+                          UserContextService userContextService) {
         this.postService = postService;
         this.userService = userService;
+        this.userContextService = userContextService;
     }
 
-    @PostMapping("/post/{postID}/like/{userID}")
-    public ResponseEntity<Post> likePost(@PathVariable int postID, @PathVariable int userID) {
-        User user = userService.findUserById(userID);
+    @PostMapping("/post/{postID}/like")
+    public ResponseEntity<Post> likePost(@PathVariable int postID) {
+        Optional<User> optionalUser = userContextService.getCurrentUser();
         Post post = postService.findPostById(postID);
-        if (post != null && user != null) {
+        if (post != null && optionalUser.isPresent()) {
+            User user = optionalUser.get();
             user.addLikedPost(post);
             userService.save(user);
             return ResponseEntity.ok().build();
@@ -36,11 +42,12 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
-    @PostMapping("/post/{postID}/remove/{userID}")
-    public ResponseEntity<Post> removeLike(@PathVariable int postID, @PathVariable int userID) {
+    @PostMapping("/post/{postID}/remove")
+    public ResponseEntity<Post> removeLike(@PathVariable int postID) {
+        Optional<User> optionalUser = userContextService.getCurrentUser();
         Post post = postService.findPostById(postID);
-        User user = userService.findUserById(userID);
-        if (post != null && user != null) {
+        if (post != null && optionalUser.isPresent()) {
+            User user = optionalUser.get();
             user.removeLikedPost(post);
             userService.save(user);
             return ResponseEntity.ok().build();
@@ -49,16 +56,12 @@ public class PostController {
     }
 
     @PostMapping("/post")
-    public ResponseEntity<Post> createPost(@RequestBody PostCreationRequest request) {
-        User user = userService.findUserById(request.getUserID());
-        if (user == null) {
+    public ResponseEntity<Post> createPost(@RequestBody Post newPost) {
+        Optional<User> userOptional = userContextService.getCurrentUser();
+        if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        Post post = new Post();
-        post.setPost_content(request.getContent());
-        post.setPost_pictureID(request.getPictureID());
-        user.addPost(post);
-        Post createdPost = postService.createPost(post);
+        Post createdPost = postService.createPost(newPost, userOptional.get());
         if (createdPost != null) {
             return ResponseEntity.status(HttpStatus.CREATED).build();
         }
