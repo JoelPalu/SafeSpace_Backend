@@ -1,6 +1,7 @@
 package G2.SafeSpace.service;
 
 import G2.SafeSpace.dto.UpdateUserResponse;
+import G2.SafeSpace.dto.UserDTO;
 import G2.SafeSpace.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -77,7 +78,7 @@ public class UserService {
                     if (checkUsernameAvailability(username)) {
                         existingUser.setUsername(username.trim());
                     } else {
-                        return new UpdateUserResponse(true, false, existingUser);
+                        return new UpdateUserResponse(true, false, null);
                     }
                 }
                 if (!existingUser.getPassword().equals(password) && password != null && !password.trim().isEmpty()) {
@@ -99,7 +100,14 @@ public class UserService {
                 }
 
                 User savedUser = userRepository.save(existingUser);
-                return new UpdateUserResponse(false, true, savedUser);
+
+                UserDTO userDTO = new UserDTO();
+                userDTO.setId(savedUser.getUserID());
+                userDTO.setUsername(savedUser.getUsername());
+                userDTO.setBio(savedUser.getBio());
+                userDTO.setProfilePictureID(savedUser.getProfilePictureID());
+
+                return new UpdateUserResponse(false, true, userDTO);
             } else return null;
         } catch (Exception e) {
             throw new RuntimeException("Failed to update user " + e.getMessage());

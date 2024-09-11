@@ -1,6 +1,7 @@
 package G2.SafeSpace.controller;
 
 import G2.SafeSpace.dto.UpdateUserResponse;
+import G2.SafeSpace.dto.UserDTO;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.service.UserContextService;
 import org.springframework.http.HttpStatus;
@@ -61,13 +62,14 @@ public class UserController {
 
     //update user
     @PutMapping("/users/update")
-    public ResponseEntity<User> updateUser(@RequestBody User updatedUser) {
+    public ResponseEntity<UserDTO> updateUser(@RequestBody User updatedUser) {
         UpdateUserResponse response = userService.updateUser(updatedUser);
         if (response != null) {
             if (response.isNameTaken()) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }
-            return ResponseEntity.ok(response.getUser());
+            UserDTO user = response.getUser();
+            return ResponseEntity.ok(user);
         } else {
             return ResponseEntity.notFound().build();
         }

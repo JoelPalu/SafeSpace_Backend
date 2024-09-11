@@ -6,13 +6,13 @@ public class UpdateUserResponse {
 
     private boolean nameTaken = false;
     private boolean success = false;
-    private User user;
+    private UserDTO userDTO;
 
 
-    public UpdateUserResponse(boolean nameTaken, boolean success, User user) {
+    public UpdateUserResponse(boolean nameTaken, boolean success, UserDTO userDTO) {
         this.nameTaken = nameTaken;
         this.success = success;
-        this.user = user;
+        this.userDTO = userDTO;
     }
 
     public boolean isNameTaken() {
@@ -31,11 +31,11 @@ public class UpdateUserResponse {
         this.success = success;
     }
 
-    public User getUser() {
-        return this.user;
+    public UserDTO getUser() {
+        return this.userDTO;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(UserDTO userDTO) {
+        this.userDTO = userDTO;
     }
 }
