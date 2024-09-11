@@ -1,6 +1,7 @@
 package G2.SafeSpace.service;
 
 import G2.SafeSpace.entity.User;
+import G2.SafeSpace.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,18 +12,17 @@ import java.util.Optional;
 @Service
 public class UserContextService {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserContextService(UserService userService) {
-        this.userService = userService;
+    public UserContextService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     public Optional<User> getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getName() != null) {
-            User currentUser = userService.findUserByUsername(authentication.getName());
-            return Optional.ofNullable(currentUser);
+            return Optional.ofNullable(userRepository.findByUsername(authentication.getName()));
         }
         return Optional.empty();
     }

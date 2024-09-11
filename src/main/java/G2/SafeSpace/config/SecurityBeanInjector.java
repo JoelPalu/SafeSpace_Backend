@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 public class SecurityBeanInjector {
 
     @Autowired
-    private UserService userRepository;
+    private UserRepository userRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -41,9 +41,6 @@ public class SecurityBeanInjector {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        return username -> {
-            return userRepository.findUserByUsername(username);
-
-        };
+        return username -> userRepository.findByUsername(username);
     }
 }
