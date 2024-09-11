@@ -39,6 +39,8 @@ public class SecurityFilter {
                     authConfig.requestMatchers("api/v1/users/**").authenticated();
                     authConfig.requestMatchers("api/v1/post/").authenticated();
                     authConfig.requestMatchers("api/v1/post/**").authenticated();
+                    authConfig.requestMatchers("/posts/**").permitAll();
+
 
                     authConfig.anyRequest().denyAll();
 
