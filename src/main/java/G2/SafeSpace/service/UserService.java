@@ -158,6 +158,10 @@ public class UserService {
         }
     }
 
+    public boolean isFriend(User user, User friend) {
+        return user.getFriends().contains(friend);
+    }
+
     public Optional<User> removeFriend(User user, User friend) {
         try {
             user.removeFriends(friend);

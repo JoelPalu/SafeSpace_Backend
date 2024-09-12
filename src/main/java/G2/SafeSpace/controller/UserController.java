@@ -117,74 +117,58 @@ public class UserController {
 
 
     @PostMapping("/users/friends/{friend_id}")
-    public ResponseEntity<User> addFriend(@PathVariable int friend_id) {
-        // Retrieve the authenticated user's username
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String authenticatedUsername = authentication.getName();
-
-        // Find the authenticated user by username
-        User authenticatedUser = userService.findUserByUsername(authenticatedUsername);
-        if (authenticatedUser == null) {
+    public ResponseEntity<String> addFriend(@PathVariable int friend_id) {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         User friend = userService.findUserById(friend_id);
-        if (friend == null) {
-            return ResponseEntity.notFound().build();
-        }
-        Optional<User> updatedUserOptional = userService.addFriend(authenticatedUser, friend);
-        if (updatedUserOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        if (friend != null) {
+            if (userService.isFriend(optionalUser.get(), friend)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("Users are already friends.");
+            }
+            Optional<User> updatedUserOptional = userService.addFriend(optionalUser.get(), friend);
+            if (updatedUserOptional.isPresent()) {
+                return ResponseEntity.ok().build();
 
-        } else {
-            return ResponseEntity.notFound().build();
+            }
         }
+        return ResponseEntity.notFound().build();
     }
 
-    // this should be fixed, returns 202 even if nothing happens + status code 202 is wrong when successful (200/201 for both add and remove friends)
     @DeleteMapping("/users/friends/{friend_id}")
-    public ResponseEntity<User> removeFriend(@PathVariable int friend_id) {
-        // Retrieve the authenticated user's username
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String authenticatedUsername = authentication.getName();
-
-        // Find the authenticated user by username
-        User authenticatedUser = userService.findUserByUsername(authenticatedUsername);
-        if (authenticatedUser == null) {
+    public ResponseEntity<String> removeFriend(@PathVariable int friend_id) {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         User friend = userService.findUserById(friend_id);
-        if (friend == null) {
-            return ResponseEntity.notFound().build();
+        if (friend != null) {
+            if (!userService.isFriend(optionalUser.get(), friend)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("Users aren't friends.");
+            }
+            Optional<User> updatedUserOptional = userService.removeFriend(optionalUser.get(), friend);
+            if (updatedUserOptional.isPresent()) {
+                return ResponseEntity.ok().build();
+            }
         }
-        Optional<User> updatedUserOptional = userService.removeFriend(authenticatedUser, friend);
-        if (updatedUserOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
-
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/users/friends")
     public ResponseEntity<List<Integer>> getFriends() {
-
-        // Retrieve the authenticated user's username
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String authenticatedUsername = authentication.getName();
-        System.out.println("Authenticated user: " + authenticatedUsername);
-
-        // Find the authenticated user by username
-        User authenticatedUser = userService.findUserByUsername(authenticatedUsername);
-        if (authenticatedUser == null) {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         // Get the authenticated user's friends
-        List<Integer> friendIds = userService.getFriends(authenticatedUser);
+        List<Integer> friendIds = userService.getFriends(optionalUser.get());
         if (friendIds.isEmpty()) {
-
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         return ResponseEntity.ok(friendIds);
