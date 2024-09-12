@@ -90,6 +90,9 @@ public class PostService {
         }
     }
 
-
+    // check if the post is owned by the user
+    public boolean ownPost(int id, User user) {
+        return user.getPosts().contains(findPostById(id));
+    }
 
 }

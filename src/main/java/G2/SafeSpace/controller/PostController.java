@@ -74,9 +74,16 @@ public class PostController {
 
     @PutMapping("/post/{id}")
     public ResponseEntity<Post> updatePost(@PathVariable int id, @RequestBody Post updatedPost) {
+        Optional<User> userOptional = userContextService.getCurrentUser();
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        if (!postService.ownPost(id, userOptional.get())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
         Post post = postService.updatePost(id, updatedPost);
         if (post != null) {
-            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+            return ResponseEntity.status(HttpStatus.CREATED).build();
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
