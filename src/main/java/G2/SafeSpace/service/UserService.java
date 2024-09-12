@@ -1,21 +1,16 @@
 package G2.SafeSpace.service;
 
-import G2.SafeSpace.authentication.AuthenticationRequest;
-import G2.SafeSpace.authentication.AuthenticationResponse;
 import G2.SafeSpace.config.JwtService;
 import G2.SafeSpace.dto.UpdateUserResponse;
 import G2.SafeSpace.dto.UserDTO;
+import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import G2.SafeSpace.repository.UserRepository;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,16 +32,22 @@ public class UserService {
         this.jwtService = jwtService;
     }
 
-    public List<User> findAllUsers() {
+    public List<UserDTO> findAllUsers() {
         try {
-            return userRepository.findAll();
+            List<User> rawUsers = userRepository.findAll();
+            List<UserDTO> userDTOS = new ArrayList<>();
+            for (User rawUser : rawUsers) {
+                UserDTO userDTO = new UserDTO(rawUser, true);
+                userDTOS.add(userDTO);
+            }
+            return userDTOS;
         } catch (RuntimeException e) {
             throw new RuntimeException("Could not find all users " + e.getMessage());
         }
     }
 
     public boolean checkUsernameAvailability(String username) {
-        List<User> users = findAllUsers();
+        List<User> users = userRepository.findAll();
         boolean taken = false;
         if (!users.isEmpty()) {
             for (User user : users) {
@@ -110,11 +111,7 @@ public class UserService {
 
                 User savedUser = userRepository.save(existingUser);
 
-                UserDTO userDTO = new UserDTO();
-                userDTO.setId(savedUser.getUserID());
-                userDTO.setUsername(savedUser.getUsername());
-                userDTO.setBio(savedUser.getBio());
-                userDTO.setProfilePictureID(savedUser.getProfilePictureID());
+                UserDTO userDTO = new UserDTO(savedUser, false);
                 userDTO.setJwt(jwtService.generateToken(savedUser, generateExtraClaims(savedUser)));
 
                 return new UpdateUserResponse(false, true, userDTO);

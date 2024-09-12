@@ -40,6 +40,7 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "userID"),
             inverseJoinColumns = @JoinColumn(name = "postID")
     )
+    @JsonIgnore
     private Set<Post> posts = new HashSet<>();
 
     @ManyToMany
@@ -48,6 +49,7 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "userID"),
             inverseJoinColumns = @JoinColumn(name = "postID")
     )
+    @JsonIgnore
     private Set<Post> likedPosts = new HashSet<>();
 
     @ManyToMany
@@ -56,7 +58,7 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "User1"),
             inverseJoinColumns = @JoinColumn(name = "User2")
     )
-
+    @JsonIgnore
     private Set<User> friends = new HashSet<>();
 
     public User() {}

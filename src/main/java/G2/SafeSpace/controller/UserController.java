@@ -26,13 +26,10 @@ public class UserController {
 
     //get all users
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.findAllUsers();
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> users = userService.findAllUsers();
         if (users.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        for (User user : users) {
-            user.setPassword(null);
         }
         return ResponseEntity.ok(users);
     }
