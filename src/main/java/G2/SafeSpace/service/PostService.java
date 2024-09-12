@@ -1,10 +1,12 @@
 package G2.SafeSpace.service;
 
+import G2.SafeSpace.dto.PostDTO;
 import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.repository.PostRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -65,12 +67,32 @@ public class PostService {
         }
     }
 
-    public List<Post> findAllPosts() {
-        List<Post> posts = postRepository.findAll();
-        if (posts.isEmpty()) {
-            return null;
+    public void associateUserToPost(Post post, PostDTO postDTO) {
+        if (!post.getUsers().isEmpty()) {
+            User postCreator = post.getUsers().iterator().next();
+            postDTO.setPostCreatorID(postCreator.getUserID());
         }
-        return posts;
+
+        if (!post.getLikedUsers().isEmpty()) {
+            List<Integer> likedUserIDs = new ArrayList<>();
+            post.getLikedUsers().forEach(liker -> likedUserIDs.add(liker.getUserID()));
+            postDTO.setLikers(likedUserIDs);
+        }
+    }
+
+    public List<PostDTO> findAllPosts() {
+        try {
+            List<Post> rawPosts = postRepository.findAll();
+            List<PostDTO> postDTOS = new ArrayList<>();
+            for (Post rawPost : rawPosts) {
+                PostDTO postDTO = new PostDTO(rawPost);
+                associateUserToPost(rawPost, postDTO);
+                postDTOS.add(postDTO);
+            }
+            return postDTOS;
+        } catch (Exception e) {
+            throw new RuntimeException("No posts found " + e.getMessage());
+        }
     }
 
     //public List<Post> findPostsByUsername(String username) {}
@@ -91,13 +113,12 @@ public class PostService {
     }
 
     // check if the post is owned by the user
-    public boolean ownPost(int id, User user) {
-        return user.getPosts().contains(findPostById(id));
+    public boolean isPostOwner(Post post, User user) {
+        return user.getPosts().contains(post);
     }
 
     public boolean alreadyLikedPost(int id, User user) {
         return user.getLikedPosts().contains(findPostById(id));
     }
-
 
 }
