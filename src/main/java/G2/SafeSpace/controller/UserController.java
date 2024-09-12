@@ -3,6 +3,7 @@ package G2.SafeSpace.controller;
 import G2.SafeSpace.dto.UpdateUserResponse;
 import G2.SafeSpace.dto.UserDTO;
 import G2.SafeSpace.entity.User;
+import G2.SafeSpace.repository.UserRepository;
 import G2.SafeSpace.service.UserContextService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,28 +20,45 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
+    private final UserContextService userContextService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService,
+                          UserRepository userRepository,
+                          UserContextService userContextService) {
         this.userService = userService;
+        this.userRepository = userRepository;
+        this.userContextService = userContextService;
+    }
+
+    private Optional<User> getCurrentUser() {
+        return userContextService.getCurrentUser();
     }
 
     //get all users
     @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
-        List<UserDTO> users = userService.findAllUsers();
-        if (users.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(users);
+        List<UserDTO> users = userService.findAllUsers();
+        if (!users.isEmpty()) {
+            return ResponseEntity.ok(users);
+        }
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     //get user by id
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable int id) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable int id) {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         User user = userService.findUserById(id);
         if (user != null) {
-            user.setPassword(null);
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(new UserDTO(user, true));
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -48,10 +66,14 @@ public class UserController {
 
     //get user by username
     @GetMapping("/users/search")
-    public ResponseEntity<User> getUserByName(@RequestParam String name) {
-        User user = userService.findUserByUsername(name);
+    public ResponseEntity<UserDTO> getUserByName(@RequestParam String name) {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        User user = userRepository.findByUsername(name);
         if (user != null) {
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(new UserDTO(user, true));
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -61,6 +83,10 @@ public class UserController {
     // REMOVED PATH VARIABLE FROM UPDATE USER
     @PutMapping("/users/update")
     public ResponseEntity<UserDTO> updateUser(@RequestBody User updatedUser) {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         UpdateUserResponse response = userService.updateUser(updatedUser);
         if (response != null) {
             if (response.isNameTaken()) {
@@ -76,6 +102,11 @@ public class UserController {
     // REMOVED PATH VARIABLE FROM DELETE USER
     @DeleteMapping("/users/delete")
     public ResponseEntity<User> deleteUser() {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         boolean deletedUserOptional = userService.deleteUser();
         if (deletedUserOptional) {
             return ResponseEntity.ok().build();
@@ -86,73 +117,58 @@ public class UserController {
 
 
     @PostMapping("/users/friends/{friend_id}")
-    public ResponseEntity<User> addFriend(@PathVariable int friend_id) {
-        // Retrieve the authenticated user's username
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String authenticatedUsername = authentication.getName();
-
-        // Find the authenticated user by username
-        User authenticatedUser = userService.findUserByUsername(authenticatedUsername);
-        if (authenticatedUser == null) {
+    public ResponseEntity<String> addFriend(@PathVariable int friend_id) {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         User friend = userService.findUserById(friend_id);
-        if (friend == null) {
-            return ResponseEntity.notFound().build();
-        }
-        Optional<User> updatedUserOptional = userService.addFriend(authenticatedUser, friend);
-        if (updatedUserOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
+        if (friend != null) {
+            if (userService.isFriend(optionalUser.get(), friend)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("Users are already friends.");
+            }
+            Optional<User> updatedUserOptional = userService.addFriend(optionalUser.get(), friend);
+            if (updatedUserOptional.isPresent()) {
+                return ResponseEntity.ok().build();
 
-        } else {
-            return ResponseEntity.notFound().build();
+            }
         }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/users/friends/{friend_id}")
-    public ResponseEntity<User> removeFriend(@PathVariable int friend_id) {
-        // Retrieve the authenticated user's username
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String authenticatedUsername = authentication.getName();
-
-        // Find the authenticated user by username
-        User authenticatedUser = userService.findUserByUsername(authenticatedUsername);
-        if (authenticatedUser == null) {
+    public ResponseEntity<String> removeFriend(@PathVariable int friend_id) {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         User friend = userService.findUserById(friend_id);
-        if (friend == null) {
-            return ResponseEntity.notFound().build();
+        if (friend != null) {
+            if (!userService.isFriend(optionalUser.get(), friend)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("Users aren't friends.");
+            }
+            Optional<User> updatedUserOptional = userService.removeFriend(optionalUser.get(), friend);
+            if (updatedUserOptional.isPresent()) {
+                return ResponseEntity.ok().build();
+            }
         }
-        Optional<User> updatedUserOptional = userService.removeFriend(authenticatedUser, friend);
-        if (updatedUserOptional.isPresent()) {
-            return ResponseEntity.status(HttpStatus.ACCEPTED).build();
-
-        } else {
-            return ResponseEntity.notFound().build();
-        }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/users/friends")
     public ResponseEntity<List<Integer>> getFriends() {
-
-        // Retrieve the authenticated user's username
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String authenticatedUsername = authentication.getName();
-        System.out.println("Authenticated user: " + authenticatedUsername);
-
-        // Find the authenticated user by username
-        User authenticatedUser = userService.findUserByUsername(authenticatedUsername);
-        if (authenticatedUser == null) {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         // Get the authenticated user's friends
-        List<Integer> friendIds = userService.getFriends(authenticatedUser);
+        List<Integer> friendIds = userService.getFriends(optionalUser.get());
         if (friendIds.isEmpty()) {
-
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         return ResponseEntity.ok(friendIds);

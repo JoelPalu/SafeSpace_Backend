@@ -132,15 +132,6 @@ public class User implements UserDetails {
         return this;
     }
 
-    //FOR DEBUGGING
-    public void getUserDetails() {
-        System.out.println("USERINFO: \n" + "ID: " + this.userID
-                + "\nUSERNAME: " + this.username
-                + "\nPASSWORD: " + this.password
-                + "\nPROFILEPICTURE_ID: " + this.ProfilePictureID
-                + "\nBIO: " + this.Bio
-                + "\nDATEOFCREATION: " + this.dateOfCreation );
-    }
 
     public Set<Post> getPosts() {
         return this.posts;
@@ -195,5 +186,16 @@ public class User implements UserDetails {
         return this.friends;
     }
 
+    @Override
+    public String toString() {
+        return "USER ENTITY: " +
+                "User ID: " + userID +
+                ", Username: " + username +
+                ", Bio: " + Bio +
+                ", ProfilePictureID: " + ProfilePictureID +
+                ", DateOfCreation: " + dateOfCreation +
+                "\nPosts: " + posts +
+                "\nLikedPosts: " + likedPosts;
+    }
 
 }

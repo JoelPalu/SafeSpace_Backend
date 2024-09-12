@@ -13,6 +13,7 @@ public class UserDTO {
     private String username;
     private String bio;
     private String profilePictureID;
+    private String dateOfCreation;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String jwt;
@@ -39,6 +40,7 @@ public class UserDTO {
         this.username = user.getUsername();
         this.bio = user.getBio();
         this.profilePictureID = user.getProfilePictureID();
+        this.dateOfCreation = user.getDateOfCreation();
 
         if (includeLists) {
             this.posts = user.getPosts().stream().map(Post::getPostID).collect(Collectors.toList());
@@ -77,6 +79,14 @@ public class UserDTO {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getDateOfCreation() {
+        return this.dateOfCreation;
+    }
+
+    public void setDateOfCreation(String dateOfCreation) {
+        this.dateOfCreation = dateOfCreation;
     }
 
     public String getJwt() {
