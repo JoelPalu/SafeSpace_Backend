@@ -90,10 +90,11 @@ public class Post {
         }
     }
 
-    public void getPostDetails() {
-        System.out.println("POST DETAILS:" + "\nID: " + postID
-                + "\nCONTENT: " + Post_content
-                + "\nPICTURE ID: " + Post_pictureID
-                + "\nDATE: " + Post_date);
+    @Override
+    public String toString() {
+        return "POST ENTITY: " +
+                "PostID: " + postID +
+                ", PostContent: " + Post_content +
+                ", PostPictureID: " + Post_pictureID;
     }
 }
