@@ -3,6 +3,7 @@ package G2.SafeSpace.controller;
 import G2.SafeSpace.dto.UpdateUserResponse;
 import G2.SafeSpace.dto.UserDTO;
 import G2.SafeSpace.entity.User;
+import G2.SafeSpace.repository.UserRepository;
 import G2.SafeSpace.service.UserContextService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,11 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final UserRepository userRepository;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserRepository userRepository) {
         this.userService = userService;
+        this.userRepository = userRepository;
     }
 
     //get all users
@@ -36,11 +39,10 @@ public class UserController {
 
     //get user by id
     @GetMapping("/users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable int id) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable int id) {
         User user = userService.findUserById(id);
         if (user != null) {
-            user.setPassword(null);
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(new UserDTO(user, true));
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -48,10 +50,10 @@ public class UserController {
 
     //get user by username
     @GetMapping("/users/search")
-    public ResponseEntity<User> getUserByName(@RequestParam String name) {
-        User user = userService.findUserByUsername(name);
+    public ResponseEntity<UserDTO> getUserByName(@RequestParam String name) {
+        User user = userRepository.findByUsername(name);
         if (user != null) {
-            return ResponseEntity.ok(user);
+            return ResponseEntity.ok(new UserDTO(user, true));
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -110,6 +112,7 @@ public class UserController {
         }
     }
 
+    // this should be fixed, returns 202 even if nothing happens
     @DeleteMapping("/users/friends/{friend_id}")
     public ResponseEntity<User> removeFriend(@PathVariable int friend_id) {
         // Retrieve the authenticated user's username
