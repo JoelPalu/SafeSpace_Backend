@@ -58,6 +58,7 @@ public class UserController {
     }
 
     //update user
+    // REMOVED PATH VARIABLE FROM UPDATE USER
     @PutMapping("/users/update")
     public ResponseEntity<UserDTO> updateUser(@RequestBody User updatedUser) {
         UpdateUserResponse response = userService.updateUser(updatedUser);
@@ -72,6 +73,7 @@ public class UserController {
         }
     }
 
+    // REMOVED PATH VARIABLE FROM DELETE USER
     @DeleteMapping("/users/delete")
     public ResponseEntity<User> deleteUser() {
         boolean deletedUserOptional = userService.deleteUser();

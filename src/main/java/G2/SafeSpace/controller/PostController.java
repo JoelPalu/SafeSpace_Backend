@@ -2,6 +2,7 @@ package G2.SafeSpace.controller;
 
 import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
+import G2.SafeSpace.repository.UserRepository;
 import G2.SafeSpace.service.PostService;
 import G2.SafeSpace.service.UserContextService;
 import G2.SafeSpace.service.UserService;
@@ -17,18 +18,19 @@ import java.util.Optional;
 @RequestMapping("api/v1")
 public class PostController {
     private final PostService postService;
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final UserContextService userContextService;
 
     @Autowired
     public PostController(PostService postService,
-                          UserService userService,
+                          UserRepository userRepository,
                           UserContextService userContextService) {
         this.postService = postService;
-        this.userService = userService;
+        this.userRepository = userRepository;
         this.userContextService = userContextService;
     }
 
+    //REMOVED PATH VARIABLE FROM LIKEPOST
     @PostMapping("/post/{postID}/like")
     public ResponseEntity<Post> likePost(@PathVariable int postID) {
         Optional<User> optionalUser = userContextService.getCurrentUser();
@@ -36,12 +38,13 @@ public class PostController {
         if (post != null && optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.addLikedPost(post);
-            userService.save(user);
+            userRepository.save(user);
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    // REMOVE PATHVARIABLE FROM REMOVELIKE
     @PostMapping("/post/{postID}/remove")
     public ResponseEntity<Post> removeLike(@PathVariable int postID) {
         Optional<User> optionalUser = userContextService.getCurrentUser();
@@ -49,12 +52,13 @@ public class PostController {
         if (post != null && optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.removeLikedPost(post);
-            userService.save(user);
+            userRepository.save(user);
             return ResponseEntity.ok().build();
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    //REMOVE CUSTOM DTO CONTAINING USERID (POSTMAN POST_CONTENT, POST_PICTUREID)
     @PostMapping("/post")
     public ResponseEntity<Post> createPost(@RequestBody Post newPost) {
         Optional<User> userOptional = userContextService.getCurrentUser();

@@ -148,11 +148,6 @@ public class UserService {
         }
     }
 
-    public User save(User user) {
-        return userRepository.save(user);
-    }
-
-
     public Optional<User> addFriend(User user, User friend) {
         try {
             user.addFriends(friend);
