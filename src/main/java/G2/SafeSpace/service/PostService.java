@@ -95,4 +95,9 @@ public class PostService {
         return user.getPosts().contains(findPostById(id));
     }
 
+    public boolean alreadyLikedPost(int id, User user) {
+        return user.getLikedPosts().contains(findPostById(id));
+    }
+
+
 }

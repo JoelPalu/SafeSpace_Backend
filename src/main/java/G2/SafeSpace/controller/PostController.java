@@ -36,6 +36,9 @@ public class PostController {
         Optional<User> optionalUser = userContextService.getCurrentUser();
         Post post = postService.findPostById(postID);
         if (post != null && optionalUser.isPresent()) {
+            if (postService.alreadyLikedPost(postID, optionalUser.get())) {
+                return new ResponseEntity<>(HttpStatus.CONFLICT);
+            }
             User user = optionalUser.get();
             user.addLikedPost(post);
             userRepository.save(user);
@@ -50,6 +53,9 @@ public class PostController {
         Optional<User> optionalUser = userContextService.getCurrentUser();
         Post post = postService.findPostById(postID);
         if (post != null && optionalUser.isPresent()) {
+            if (!postService.alreadyLikedPost(postID, optionalUser.get())) {
+                return new ResponseEntity<>(HttpStatus.CONFLICT);
+            }
             User user = optionalUser.get();
             user.removeLikedPost(post);
             userRepository.save(user);
