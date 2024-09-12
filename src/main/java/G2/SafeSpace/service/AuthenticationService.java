@@ -18,30 +18,31 @@ import java.util.Map;
 public class AuthenticationService {
 
     private final AuthenticationManager authenticationManager;
-    private final UserService userService;
+    private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
     public AuthenticationService(AuthenticationManager authenticationManager,
-                                 UserService userService,
+                                 UserRepository userRepository,
                                  JwtService jwtService,
                                  PasswordEncoder passwordEncoder) {
         this.authenticationManager = authenticationManager;
-        this.userService = userService;
+        this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public AuthenticationResponse register(User request) {
+    public AuthenticationResponse register(AuthenticationRequest request) {
 
-        request.setUsername(request.getUsername().trim());
-        request.setPassword(passwordEncoder.encode(request.getPassword().trim()));
-        request.setBio(null);
-        request.setProfilePictureID("default");
+        User user = new User();
+        user.setUsername(request.getUsername().trim());
+        user.setPassword(passwordEncoder.encode(request.getPassword().trim()));
+        user.setBio(null);
+        user.setProfilePictureID("default");
 
-        String token = jwtService.generateToken(request, generateExtraClaims(request));
-        return new AuthenticationResponse(token , userService.save(request));
+        String token = jwtService.generateToken(user, generateExtraClaims(user));
+        return new AuthenticationResponse(token , userRepository.save(user));
     }
 
 
@@ -52,7 +53,7 @@ public class AuthenticationService {
         );
 
         authenticationManager.authenticate(token);
-        User user = userService.findUserByUsername(request.getUsername());
+        User user = userRepository.findByUsername(request.getUsername());
         String jwt = jwtService.generateToken(user, generateExtraClaims(user));
 
         return new AuthenticationResponse(jwt, user);
