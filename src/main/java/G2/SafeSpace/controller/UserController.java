@@ -31,10 +31,10 @@ public class UserController {
     @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> users = userService.findAllUsers();
-        if (users.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if (!users.isEmpty()) {
+            return ResponseEntity.ok(users);
         }
-        return ResponseEntity.ok(users);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     //get user by id
@@ -112,7 +112,7 @@ public class UserController {
         }
     }
 
-    // this should be fixed, returns 202 even if nothing happens
+    // this should be fixed, returns 202 even if nothing happens + status code 202 is wrong when successful (200/201 for both add and remove friends)
     @DeleteMapping("/users/friends/{friend_id}")
     public ResponseEntity<User> removeFriend(@PathVariable int friend_id) {
         // Retrieve the authenticated user's username
