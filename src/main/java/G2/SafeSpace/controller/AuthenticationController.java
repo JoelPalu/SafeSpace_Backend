@@ -22,12 +22,12 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@RequestBody User user) {
-        String username = user.getUsername();
-        String password = user.getPassword();
+    public ResponseEntity<AuthenticationResponse> register(@RequestBody AuthenticationRequest request) {
+        String username = request.getUsername();
+        String password = request.getPassword();
         if (username != null && !username.trim().isEmpty() && password != null && !password.trim().isEmpty()) {
-            if (userService.checkUsernameAvailability(user.getUsername())) {
-                return ResponseEntity.status(HttpStatus.CREATED).body(authenticationService.register(user));
+            if (userService.checkUsernameAvailability(request.getUsername())) {
+                return ResponseEntity.status(HttpStatus.CREATED).body(authenticationService.register(request));
             } else {
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }

@@ -1,6 +1,7 @@
 package G2.SafeSpace.service;
 
 import G2.SafeSpace.entity.Post;
+import G2.SafeSpace.entity.User;
 import G2.SafeSpace.repository.PostRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,8 +17,11 @@ public class PostService {
         this.postRepository = postRepository;
     }
 
-    public Post createPost(Post post) {
+    public Post createPost(Post post, User user) {
         if (post.getPost_content() != null || post.getPost_pictureID() != null) {
+            post.setPost_content(post.getPost_content().trim());
+            post.setPost_pictureID(post.getPost_pictureID());
+            user.addPost(post);
             return postRepository.save(post);
         }
         return null;
@@ -38,7 +42,7 @@ public class PostService {
                 Post existingPost = currentPostOptional.get();
 
                 if (postContent != null) {
-                    existingPost.setPost_content(postContent);
+                    existingPost.setPost_content(postContent.trim());
                 }
                 if (postPictureID != null) {
                     existingPost.setPost_pictureID(postPictureID);

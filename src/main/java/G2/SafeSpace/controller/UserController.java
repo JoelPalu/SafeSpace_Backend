@@ -1,6 +1,9 @@
 package G2.SafeSpace.controller;
 
+import G2.SafeSpace.dto.UpdateUserResponse;
+import G2.SafeSpace.dto.UserDTO;
 import G2.SafeSpace.entity.User;
+import G2.SafeSpace.service.UserContextService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,13 +26,10 @@ public class UserController {
 
     //get all users
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.findAllUsers();
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> users = userService.findAllUsers();
         if (users.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
-        for (User user : users) {
-            user.setPassword(null);
         }
         return ResponseEntity.ok(users);
     }
@@ -58,19 +58,25 @@ public class UserController {
     }
 
     //update user
-    @PutMapping("/users/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable int id, @RequestBody User updatedUser) {
-        Optional<User> updatedUserOptional = userService.updateUser(id, updatedUser);
-        if (updatedUserOptional.isPresent()) {
-            return ResponseEntity.ok(updatedUserOptional.get());
+    // REMOVED PATH VARIABLE FROM UPDATE USER
+    @PutMapping("/users/update")
+    public ResponseEntity<UserDTO> updateUser(@RequestBody User updatedUser) {
+        UpdateUserResponse response = userService.updateUser(updatedUser);
+        if (response != null) {
+            if (response.isNameTaken()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+            UserDTO user = response.getUser();
+            return ResponseEntity.ok(user);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
 
-    @DeleteMapping("/users/{id}")
-    public ResponseEntity<User> deleteUser(@PathVariable int id) {
-        boolean deletedUserOptional = userService.deleteUser(id);
+    // REMOVED PATH VARIABLE FROM DELETE USER
+    @DeleteMapping("/users/delete")
+    public ResponseEntity<User> deleteUser() {
+        boolean deletedUserOptional = userService.deleteUser();
         if (deletedUserOptional) {
             return ResponseEntity.ok().build();
         } else {
