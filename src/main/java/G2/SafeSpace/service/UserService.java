@@ -1,14 +1,20 @@
 package G2.SafeSpace.service;
 
+import G2.SafeSpace.authentication.AuthenticationRequest;
+import G2.SafeSpace.authentication.AuthenticationResponse;
+import G2.SafeSpace.config.JwtService;
 import G2.SafeSpace.dto.UpdateUserResponse;
 import G2.SafeSpace.dto.UserDTO;
 import G2.SafeSpace.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import G2.SafeSpace.repository.UserRepository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -18,14 +24,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserContextService userContextService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Autowired
     public UserService(UserRepository userRepository,
                        UserContextService userContextService,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       JwtService jwtService) {
         this.userRepository = userRepository;
         this.userContextService = userContextService;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public List<User> findAllUsers() {
@@ -106,6 +115,7 @@ public class UserService {
                 userDTO.setUsername(savedUser.getUsername());
                 userDTO.setBio(savedUser.getBio());
                 userDTO.setProfilePictureID(savedUser.getProfilePictureID());
+                userDTO.setJwt(jwtService.generateToken(savedUser, generateExtraClaims(savedUser)));
 
                 return new UpdateUserResponse(false, true, userDTO);
             } else return null;
@@ -174,5 +184,12 @@ public class UserService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to get friend IDs " + e.getMessage());
         }
+    }
+
+    private Map<String, Object> generateExtraClaims(User user) {
+        Map<String, Object> extraClaims = new HashMap<>();
+        extraClaims.put("name", user.getUsername());
+        extraClaims.put("id", user.getUserID());
+        return extraClaims;
     }
 }

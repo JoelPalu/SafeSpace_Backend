@@ -6,14 +6,16 @@ public class UserDTO {
     private String username;
     private String bio;
     private String profilePictureID;
+    private String jwt;
 
     public UserDTO() {}
 
-    public UserDTO(int id, String username,String bio, String profilePictureID) {
+    public UserDTO(int id, String username,String bio, String profilePictureID, String jwt) {
         this.id = id;
         this.username = username;
         this.bio = bio;
         this.profilePictureID = profilePictureID;
+        this.jwt = jwt;
     }
 
     public String getUsername() {
@@ -46,5 +48,13 @@ public class UserDTO {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getJwt() {
+        return jwt;
+    }
+
+    public void setJwt(String jwt) {
+        this.jwt = jwt;
     }
 }
