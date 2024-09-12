@@ -21,15 +21,27 @@ public class UserController {
 
     private final UserService userService;
     private final UserRepository userRepository;
+    private final UserContextService userContextService;
 
-    public UserController(UserService userService, UserRepository userRepository) {
+    public UserController(UserService userService,
+                          UserRepository userRepository,
+                          UserContextService userContextService) {
         this.userService = userService;
         this.userRepository = userRepository;
+        this.userContextService = userContextService;
+    }
+
+    private Optional<User> getCurrentUser() {
+        return userContextService.getCurrentUser();
     }
 
     //get all users
     @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> getAllUsers() {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         List<UserDTO> users = userService.findAllUsers();
         if (!users.isEmpty()) {
             return ResponseEntity.ok(users);
@@ -40,6 +52,10 @@ public class UserController {
     //get user by id
     @GetMapping("/users/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable int id) {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         User user = userService.findUserById(id);
         if (user != null) {
             return ResponseEntity.ok(new UserDTO(user, true));
@@ -51,6 +67,10 @@ public class UserController {
     //get user by username
     @GetMapping("/users/search")
     public ResponseEntity<UserDTO> getUserByName(@RequestParam String name) {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         User user = userRepository.findByUsername(name);
         if (user != null) {
             return ResponseEntity.ok(new UserDTO(user, true));
@@ -63,6 +83,10 @@ public class UserController {
     // REMOVED PATH VARIABLE FROM UPDATE USER
     @PutMapping("/users/update")
     public ResponseEntity<UserDTO> updateUser(@RequestBody User updatedUser) {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         UpdateUserResponse response = userService.updateUser(updatedUser);
         if (response != null) {
             if (response.isNameTaken()) {
@@ -78,6 +102,11 @@ public class UserController {
     // REMOVED PATH VARIABLE FROM DELETE USER
     @DeleteMapping("/users/delete")
     public ResponseEntity<User> deleteUser() {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
         boolean deletedUserOptional = userService.deleteUser();
         if (deletedUserOptional) {
             return ResponseEntity.ok().build();
