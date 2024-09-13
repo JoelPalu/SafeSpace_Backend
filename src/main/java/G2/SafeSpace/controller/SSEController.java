@@ -19,10 +19,8 @@ public class SSEController {
         public Flux<ServerSentEvent<String>> getEvents () throws InterruptedException, IOException {
         ArrayList<Post> posts = new ArrayList<>();
 
-        return Flux.interval(Duration.ofSeconds(1))
+        return Flux.interval(Duration.ofSeconds(10))
                 .map(seq -> ServerSentEvent.<String>builder()
-                        .id(String.valueOf(seq))
-                        .event("message")
                         .data("Event #" + seq)
                         .build());
     }
