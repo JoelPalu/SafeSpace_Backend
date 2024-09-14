@@ -1,6 +1,7 @@
 package G2.SafeSpace.controller;
 
 import G2.SafeSpace.dto.PostDTO;
+import G2.SafeSpace.entity.Comment;
 import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.repository.PostRepository;
@@ -162,4 +163,37 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Failed to delete post due to an internal error");
     }
+
+
+    @GetMapping("/post/{id}/comment")
+    public ResponseEntity<List<Comment>> getPostComments(@PathVariable int id) {
+        Optional<User> userOptional = getCurrentUser();
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Post post = postService.findPostById(id);
+        if (post != null) {
+            List<Comment> comments = postService.getPostComments(post);
+            return ResponseEntity.ok(comments);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @PostMapping("/post/{id}/comment")
+    public ResponseEntity<String> createComment(@PathVariable int id, @RequestBody Comment comment) {
+        Optional<User> userOptional = getCurrentUser();
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Post post = postService.findPostById(id);
+        if (post != null) {
+            Comment createdComment = postService.createComment(comment, userOptional.get(), post);
+            if (createdComment != null) {
+                return ResponseEntity.status(HttpStatus.CREATED).body("Comment created successfully");
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Comment creation failed");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
+    }
+
 }

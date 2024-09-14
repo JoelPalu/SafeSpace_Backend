@@ -3,6 +3,9 @@ package G2.SafeSpace.entity;
 
 import jakarta.persistence.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Table(name = "comments")
 public class Comment {
@@ -11,27 +14,22 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int commentID;
 
-    @ManyToOne
-    @JoinColumn(name = "postID", foreignKey = @ForeignKey(name = "comment_post_id"))
-    private Post post;
+
 
     @ManyToOne
     @JoinColumn(name = "userID", foreignKey = @ForeignKey(name = "comment_user_id"))
     private User user;
 
-
     @Column
     private String commentContent;
 
-    @Column(name = "content")
-    private String content;
 
     public String getContent() {
-        return content;
+        return commentContent;
     }
 
     public void setContent(String content) {
-        this.content = content;
+        this.commentContent = content;
     }
 
 
@@ -41,20 +39,12 @@ public class Comment {
         return this.commentID;
     }
 
-    public Post getPost() {
-        return this.post;
-    }
-
     public User getUser() {
         return this.user;
     }
 
     public String getCommentContent() {
         return this.commentContent;
-    }
-
-    public void setPost(Post post) {
-        this.post = post;
     }
 
     public void setUser(User user) {
@@ -66,7 +56,10 @@ public class Comment {
     }
 
 
+
+
+
     public String getCommentDetails() {
-        return "Comment{commentID=" + commentID + ", post=" + post + ", user=" + user + ", commentContent=" + commentContent + "}";
+        return "Comment{commentID=" + commentID + ", user=" + user + ", commentContent=" + commentContent + "}";
     }
 }
