@@ -25,7 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private JwtService jwtService;
 
     @Autowired
-    private UserService userRepository;
+    private UserRepository userRepository;
 
 
 
@@ -56,7 +56,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
         //4. set authenticate object inside security context
-        User user = userRepository.findUserByUsername(username).get();
+        User user = userRepository.findByUsername(username).get();
 
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                 username, null, user.getAuthorities()
