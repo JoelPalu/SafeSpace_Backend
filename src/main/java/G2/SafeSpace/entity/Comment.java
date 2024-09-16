@@ -14,23 +14,12 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int commentID;
 
-
-
     @ManyToOne
     @JoinColumn(name = "userID", foreignKey = @ForeignKey(name = "comment_user_id"))
     private User user;
 
     @Column
     private String commentContent;
-
-
-    public String getContent() {
-        return commentContent;
-    }
-
-    public void setContent(String content) {
-        this.commentContent = content;
-    }
 
 
     public Comment() {}
@@ -54,9 +43,6 @@ public class Comment {
     public void setCommentContent(String commentContent) {
         this.commentContent = commentContent;
     }
-
-
-
 
 
     public String getCommentDetails() {

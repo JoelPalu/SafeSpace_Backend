@@ -1,5 +1,6 @@
 package G2.SafeSpace.controller;
 
+import G2.SafeSpace.dto.CommentDTO;
 import G2.SafeSpace.dto.PostDTO;
 import G2.SafeSpace.entity.Comment;
 import G2.SafeSpace.entity.Post;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -166,21 +168,25 @@ public class PostController {
 
 
     @GetMapping("/post/{id}/comment")
-    public ResponseEntity<List<Comment>> getPostComments(@PathVariable int id) {
+    public ResponseEntity<List<CommentDTO>> getPostComments(@PathVariable int id) {
         Optional<User> userOptional = getCurrentUser();
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
         Post post = postService.findPostById(id);
+        ArrayList<CommentDTO> commentDTOS = new ArrayList<>();
         if (post != null) {
             List<Comment> comments = postService.getPostComments(post);
-            return ResponseEntity.ok(comments);
+            for (Comment comment : comments) {
+                commentDTOS.add(new CommentDTO(comment));
+            }
+            return ResponseEntity.ok(commentDTOS);
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @PostMapping("/post/{id}/comment")
-    public ResponseEntity<String> createComment(@PathVariable int id, @RequestBody Comment comment) {
+    public ResponseEntity<CommentDTO> createComment(@PathVariable int id, @RequestBody Comment comment) {
         Optional<User> userOptional = getCurrentUser();
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -189,11 +195,11 @@ public class PostController {
         if (post != null) {
             Comment createdComment = postService.createComment(comment, userOptional.get(), post);
             if (createdComment != null) {
-                return ResponseEntity.status(HttpStatus.CREATED).body("Comment created successfully");
+                return ResponseEntity.status(HttpStatus.CREATED).body(new CommentDTO(createdComment));
             }
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Comment creation failed");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
 }

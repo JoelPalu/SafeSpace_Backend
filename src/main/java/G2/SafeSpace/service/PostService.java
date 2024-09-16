@@ -131,9 +131,8 @@ public class PostService {
 
     public Comment createComment(Comment comment, User user, Post post)
     {
-        if (comment.getContent() != null)
+        if (comment.getCommentContent() != null)
         {
-            comment.setContent(comment.getContent().trim());
             comment.setUser(user);
             commentRepository.save(comment);
             post.addComment(comment);
