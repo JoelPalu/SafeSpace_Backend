@@ -1,4 +1,4 @@
-package G2.SafeSpace.authentication;
+package G2.SafeSpace.dto;
 
 public class AuthenticationRequest {
 
