@@ -1,6 +1,7 @@
 package G2.SafeSpace.service;
 
 import G2.SafeSpace.dto.PostDTO;
+import G2.SafeSpace.controller.SSEController;
 import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.repository.PostRepository;
@@ -13,9 +14,11 @@ import java.util.Optional;
 @Service
 public class PostService {
 
+    private final SSEService sseService;
     private final PostRepository postRepository;
 
-    public PostService(PostRepository postRepository) {
+    public PostService(SSEService sseService, PostRepository postRepository) {
+        this.sseService = sseService;
         this.postRepository = postRepository;
     }
 
@@ -24,7 +27,9 @@ public class PostService {
             post.setPost_content(post.getPost_content().trim());
             post.setPost_pictureID(post.getPost_pictureID());
             user.addPost(post);
-            return postRepository.save(post);
+            Post createdPost = postRepository.save(post);
+            sseService.emitNewPost(createdPost);
+            return createdPost;
         }
         return null;
     }
