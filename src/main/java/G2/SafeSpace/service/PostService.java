@@ -1,11 +1,13 @@
 package G2.SafeSpace.service;
 
 import G2.SafeSpace.dto.PostDTO;
-import G2.SafeSpace.controller.SSEController;
 import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
+import G2.SafeSpace.event.PostCreatedEvent;
 import G2.SafeSpace.repository.PostRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,12 +16,13 @@ import java.util.Optional;
 @Service
 public class PostService {
 
-    private final SSEService sseService;
     private final PostRepository postRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
-    public PostService(SSEService sseService, PostRepository postRepository) {
-        this.sseService = sseService;
+    public PostService(PostRepository postRepository,
+                       ApplicationEventPublisher eventPublisher) {
         this.postRepository = postRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     public Post createPost(Post post, User user) {
@@ -28,7 +31,7 @@ public class PostService {
             post.setPost_pictureID(post.getPost_pictureID());
             user.addPost(post);
             Post createdPost = postRepository.save(post);
-            sseService.emitNewPost(createdPost);
+            eventPublisher.publishEvent(new PostCreatedEvent(this, new PostDTO(post)));
             return createdPost;
         }
         return null;
@@ -85,6 +88,7 @@ public class PostService {
         }
     }
 
+    @Transactional(readOnly = true)
     public List<PostDTO> findAllPosts() {
         try {
             List<Post> rawPosts = postRepository.findAll();
@@ -99,8 +103,6 @@ public class PostService {
             throw new RuntimeException("No posts found " + e.getMessage());
         }
     }
-
-    //public List<Post> findPostsByUsername(String username) {}
 
     public boolean deletePost(int id) {
         try {

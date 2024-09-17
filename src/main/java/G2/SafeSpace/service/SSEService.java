@@ -1,39 +1,44 @@
 package G2.SafeSpace.service;
 
-import G2.SafeSpace.entity.Post;
-import G2.SafeSpace.repository.PostRepository;
+import G2.SafeSpace.dto.PostDTO;
+import G2.SafeSpace.event.PostCreatedEvent;
 import jakarta.annotation.PostConstruct;
+import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.*;
 
 import java.util.List;
 
 @Service
-public class SSEService {
-    Sinks.Many<Post> sink = Sinks.many().multicast().onBackpressureBuffer();
-    private final PostRepository postRepository;
+public class SSEService implements ApplicationListener<PostCreatedEvent> {
+    Sinks.Many<PostDTO> sink = Sinks.many().multicast().onBackpressureBuffer();
+    private final PostService postService;
 
 
-    public SSEService(PostRepository postRepository) {
-        this.postRepository = postRepository;
+    public SSEService(PostService postService) {
+        this.postService = postService;
     }
 
     @PostConstruct
     public void init() {
-        List<Post> initialPosts = postRepository.findAll();
+        List<PostDTO> initialPosts = postService.findAllPosts();
         emitPosts(initialPosts);
     }
 
-    public Flux<Post> getPostFlux() {
+    @Override
+    public void onApplicationEvent(PostCreatedEvent event) {
+        emitNewPost(event.getPost());
+    }
+
+    public Flux<PostDTO> getPostFlux() {
         return sink.asFlux();
     }
 
-
-    public void emitNewPost(Post post) {
-        sink.tryEmitNext(post);
+    public void emitNewPost(PostDTO postDTO) {
+        sink.tryEmitNext(postDTO);
     }
 
-    public void emitPosts(List<Post> posts) {
+    public void emitPosts(List<PostDTO> posts) {
         posts.forEach(this::emitNewPost);
     }
 }
