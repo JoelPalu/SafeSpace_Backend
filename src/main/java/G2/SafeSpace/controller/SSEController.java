@@ -21,8 +21,8 @@ public class SSEController {
     }
 
     @GetMapping(value = "/events", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<ServerSentEvent<PostDTO>> dataStream() {
-        return sseService.getPostFlux();
+    public Flux<ServerSentEvent<?>> dataStream() {
+        return sseService.getCombinedFlux();
     }
 }
 

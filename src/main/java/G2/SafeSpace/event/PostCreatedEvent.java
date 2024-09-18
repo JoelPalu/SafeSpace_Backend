@@ -9,6 +9,7 @@ public class PostCreatedEvent extends ApplicationEvent {
     public PostCreatedEvent(Object source, PostDTO post) {
         super(source);
         this.post = post;
+        post.setEventType("new_post");
     }
 
     public PostDTO getPost() {

@@ -1,9 +1,11 @@
 package G2.SafeSpace.service;
 
+import G2.SafeSpace.dto.LikeDTO;
 import G2.SafeSpace.dto.PostDTO;
+import G2.SafeSpace.event.LikeEvent;
 import G2.SafeSpace.event.PostCreatedEvent;
 import jakarta.annotation.PostConstruct;
-import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.*;
@@ -11,10 +13,13 @@ import reactor.core.publisher.*;
 import java.util.List;
 
 @Service
-public class SSEService implements ApplicationListener<PostCreatedEvent> {
-    // global
+public class SSEService {
+    // global feed
     private final Sinks.Many<PostDTO> postSink = Sinks.many().multicast().onBackpressureBuffer();
+    // global likes
+    private final Sinks.Many<LikeDTO> likeSink = Sinks.many().multicast().onBackpressureBuffer();
     // personal data
+    //private final Map<String, Sinks.Many<LikeDTO>> likeNotification = new ConcurrentHashMap<>();
     //private final Map<String, Sinks.Many<MessageDTO>> messageSinks = new ConcurrentHashMap<>();
     //private final Map<String, Sinks.Many<FriendRequestDTO>> friendRequestSinks = new ConcurrentHashMap<>();
     //private final Map<String, Sinks.Many<CommentDTO>> commentSinks = new ConcurrentHashMap<>();
@@ -44,18 +49,30 @@ public class SSEService implements ApplicationListener<PostCreatedEvent> {
     //    return commentSinks.computeIfAbsent(userId, id -> Sinks.many().unicast().onBackpressureBuffer());
     //}
 
-    @Override
-    public void onApplicationEvent(PostCreatedEvent event) {
+    @EventListener
+    public void handlePostCreatedEvent(PostCreatedEvent event) {
         emitNewPost(event.getPost());
     }
 
-    //this will be combined later (e.g. combined flux) to send all data to same stream
-    public Flux<ServerSentEvent<PostDTO>> getPostFlux() {
-        return postSink.asFlux()
+    @EventListener
+    public void handleLikeAddedEvent(LikeEvent event) {
+        likeSink.tryEmitNext(event.getLikeDTO());
+    }
+
+    public Flux<ServerSentEvent<?>> getCombinedFlux() {
+        Flux<ServerSentEvent<?>> postEvents = postSink.asFlux()
                 .map(post -> ServerSentEvent.<PostDTO>builder()
                         .data(post)
-                        .event("post")
+                        .event(post.getEventType())
                         .build());
+
+        Flux<ServerSentEvent<?>> likeEvents = likeSink.asFlux()
+                .map(like -> ServerSentEvent.<LikeDTO>builder()
+                        .data(like)
+                        .event(like.getEventType())
+                        .build());
+
+        return Flux.merge(postEvents, likeEvents);
     }
 
 
@@ -66,6 +83,9 @@ public class SSEService implements ApplicationListener<PostCreatedEvent> {
     //populates sse with all the current posts in db during initialization
     //this could also just be transformed to client side (getallposts()) once the user logs in?
     public void emitPosts(List<PostDTO> posts) {
-        posts.forEach(this::emitNewPost);
+        posts.forEach(post -> {
+            post.setEventType("initial_post");
+            emitNewPost(post);
+        });
     }
 }
