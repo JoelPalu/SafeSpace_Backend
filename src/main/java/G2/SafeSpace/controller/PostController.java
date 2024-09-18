@@ -6,7 +6,6 @@ import G2.SafeSpace.entity.Comment;
 import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.repository.PostRepository;
-import G2.SafeSpace.repository.UserRepository;
 import G2.SafeSpace.service.PostService;
 import G2.SafeSpace.service.UserContextService;
 import G2.SafeSpace.service.UserService;
@@ -29,7 +28,6 @@ public class PostController {
 
     @Autowired
     public PostController(PostService postService,
-                          UserRepository userRepository,
                           UserContextService userContextService,
                           PostRepository postRepository,
                           UserService userService) {
