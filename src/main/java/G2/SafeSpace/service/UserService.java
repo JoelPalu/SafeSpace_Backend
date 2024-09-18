@@ -1,11 +1,13 @@
 package G2.SafeSpace.service;
 
 import G2.SafeSpace.config.JwtService;
+import G2.SafeSpace.dto.FriendshipDTO;
 import G2.SafeSpace.dto.LikeDTO;
 import G2.SafeSpace.dto.UpdateUserResponse;
 import G2.SafeSpace.dto.UserDTO;
 import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
+import G2.SafeSpace.event.FriendrequestEvent;
 import G2.SafeSpace.event.LikeEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -160,6 +162,13 @@ public class UserService {
             User savedUser = userRepository.save(user);
 
             if (savedUser.getFriends().contains(friend)) {
+                String eventType;
+                if (areFriends(savedUser, friend)) {
+                    eventType = "new_friend";
+                } else {
+                    eventType = "friend_request";
+                }
+                eventPublisher.publishEvent(new FriendrequestEvent(new FriendshipDTO(savedUser.getUserID(), friend.getUserID(), eventType)));
                 return Optional.of(savedUser);
             }
             return Optional.empty();
@@ -209,15 +218,27 @@ public class UserService {
 
     public Optional<User> removeFriend(User user, User friend) {
         try {
+            boolean wereFriends = areFriends(user, friend);
+
             user.removeFriends(friend);
             User savedUser = userRepository.save(user);
 
             if (!savedUser.getFriends().contains(friend)) {
+                String eventType = wereFriends ? "friend_removed" : "friend_request_removed";
+                eventPublisher.publishEvent(
+                        new FriendrequestEvent(
+                                new FriendshipDTO(
+                                        savedUser.getUserID(),
+                                        friend.getUserID(),
+                                        eventType
+                                )
+                        )
+                );
                 return Optional.of(savedUser);
             }
             return Optional.empty();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to remove friend " + e.getMessage());
+            throw new RuntimeException("Failed to remove friend: " + e.getMessage(), e);
         }
     }
 
