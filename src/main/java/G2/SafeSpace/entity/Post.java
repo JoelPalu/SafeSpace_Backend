@@ -28,6 +28,14 @@ public class Post {
     @ManyToMany(mappedBy = "likedPosts")
     private Set<User> likedUsers = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "postComments",
+            joinColumns = @JoinColumn(name = "post_ID"),
+            inverseJoinColumns = @JoinColumn(name = "comment_ID")
+    )
+    private Set<Comment> comments = new HashSet<>();
+
     public Post() {}
 
     public int getPostID() {
@@ -87,6 +95,16 @@ public class Post {
         if (user != null) {
             this.likedUsers.remove(user);
             user.getLikedPosts().remove(this);
+        }
+    }
+
+    public Set<Comment> getComments() {
+        return this.comments;
+    }
+
+    public void addComment(Comment comment) {
+        if (comment != null) {
+            this.comments.add(comment);
         }
     }
 
