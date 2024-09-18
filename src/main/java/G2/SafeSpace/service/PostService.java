@@ -82,9 +82,7 @@ public class PostService {
         }
 
         if (!post.getLikedUsers().isEmpty()) {
-            List<Integer> likedUserIDs = new ArrayList<>();
-            post.getLikedUsers().forEach(liker -> likedUserIDs.add(liker.getUserID()));
-            postDTO.setLikers(likedUserIDs);
+            postDTO.setLikeCount(post.getLikedUsers().size());
         }
     }
 

@@ -33,15 +33,15 @@ public class SSEService implements ApplicationListener<PostCreatedEvent> {
     }
 
     //private Sinks.Many<MessageDTO> getMessageSink(String userId) {
-     //   return messageSinks.computeIfAbsent(userId, id -> Sinks.many().multicast().onBackpressureBuffer());
+     //   return messageSinks.computeIfAbsent(userId, id -> Sinks.many().unicast().onBackpressureBuffer());
     //}
 
     //private Sinks.Many<FriendRequestDTO> getFriendRequestSink(String userId) {
-     //   return friendRequestSinks.computeIfAbsent(userId, id -> Sinks.many().multicast().onBackpressureBuffer());
+     //   return friendRequestSinks.computeIfAbsent(userId, id -> Sinks.many().unicast().onBackpressureBuffer());
     //}
 
     //private Sinks.Many<CommentDTO> getCommentSink(String userId) {
-    //    return commentSinks.computeIfAbsent(userId, id -> Sinks.many().multicast().onBackpressureBuffer());
+    //    return commentSinks.computeIfAbsent(userId, id -> Sinks.many().unicast().onBackpressureBuffer());
     //}
 
     @Override

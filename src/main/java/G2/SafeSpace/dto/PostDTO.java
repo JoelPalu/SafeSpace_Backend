@@ -11,6 +11,7 @@ public class PostDTO {
     private String postContent;
     private String postPictureID;
     private String postDate;
+    private int likeCount;
 
     private List<Integer> likers = new ArrayList<>();
 
@@ -62,12 +63,11 @@ public class PostDTO {
         this.postDate = postDate;
     }
 
-    public List<Integer> getLikers() {
-        return likers;
+    public int getLikeCount() {
+        return this.likeCount;
     }
 
-    public void setLikers(List<Integer> likers) {
-        this.likers = likers;
+    public void setLikeCount(int likeCount) {
+        this.likeCount = likeCount;
     }
-
 }
