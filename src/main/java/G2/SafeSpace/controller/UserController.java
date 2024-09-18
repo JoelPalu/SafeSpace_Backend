@@ -137,7 +137,6 @@ public class UserController {
             Optional<User> updatedUserOptional = userService.addFriend(optionalUser.get(), friend);
             if (updatedUserOptional.isPresent()) {
                 return ResponseEntity.ok().body("Friend request has been sent.");
-
             }
         }
         return ResponseEntity.notFound().build();

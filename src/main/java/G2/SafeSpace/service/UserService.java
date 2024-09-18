@@ -157,8 +157,12 @@ public class UserService {
     public Optional<User> addFriend(User user, User friend) {
         try {
             user.addFriends(friend);
-            userRepository.save(user);
-            return Optional.of(user);
+            User savedUser = userRepository.save(user);
+
+            if (savedUser.getFriends().contains(friend)) {
+                return Optional.of(savedUser);
+            }
+            return Optional.empty();
         } catch (Exception e) {
             throw new RuntimeException("Failed to add friend " + e.getMessage());
         }
@@ -167,9 +171,13 @@ public class UserService {
     public boolean likeAdded(User user, Post post) {
         try {
             user.addLikedPost(post);
-            userRepository.save(user);
-            eventPublisher.publishEvent(new LikeEvent(new LikeDTO(user.getUserID(), post.getPostID(), "like_added")));
-            return true;
+            User savedUser = userRepository.save(user);
+
+            if (savedUser.getLikedPosts().contains(post)) {
+                eventPublisher.publishEvent(new LikeEvent(new LikeDTO(user.getUserID(), post.getPostID(), "like_added")));
+                return true;
+            }
+            return false;
         } catch (Exception e) {
             return false;
         }
@@ -178,9 +186,13 @@ public class UserService {
     public boolean likeRemoved(User user, Post post) {
         try {
             user.removeLikedPost(post);
-            userRepository.save(user);
-            eventPublisher.publishEvent(new LikeEvent(new LikeDTO(user.getUserID(), post.getPostID(), "like_removed")));
-            return true;
+            User savedUser = userRepository.save(user);
+
+            if (!savedUser.getLikedPosts().contains(post)) {
+                eventPublisher.publishEvent(new LikeEvent(new LikeDTO(user.getUserID(), post.getPostID(), "like_removed")));
+                return true;
+            }
+            return false;
         } catch (Exception e) {
             return false;
         }
@@ -198,8 +210,12 @@ public class UserService {
     public Optional<User> removeFriend(User user, User friend) {
         try {
             user.removeFriends(friend);
-            userRepository.save(user);
-            return Optional.of(user);
+            User savedUser = userRepository.save(user);
+
+            if (!savedUser.getFriends().contains(friend)) {
+                return Optional.of(savedUser);
+            }
+            return Optional.empty();
         } catch (Exception e) {
             throw new RuntimeException("Failed to remove friend " + e.getMessage());
         }
