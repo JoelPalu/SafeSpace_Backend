@@ -4,16 +4,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class FriendshipDTO {
     private int requestingUserId;
-    private int recievingUserId;
+    private int receivingUserId;
 
     @JsonIgnore
     private String eventType;
 
     public FriendshipDTO(int requestingUserId,
-                         int recievingUserId,
+                         int receivingUserId,
                          String eventType) {
         this.requestingUserId = requestingUserId;
-        this.recievingUserId = recievingUserId;
+        this.receivingUserId = receivingUserId;
         this.eventType = eventType;
     }
 
@@ -23,11 +23,11 @@ public class FriendshipDTO {
     public void setRequestingUserId(int requestingUserId) {
         this.requestingUserId = requestingUserId;
     }
-    public int getRecievingUserId() {
-        return recievingUserId;
+    public int getReceivingUserId() {
+        return receivingUserId;
     }
-    public void setRecievingUserId(int recievingUserId) {
-        this.recievingUserId = recievingUserId;
+    public void setReceivingUserId(int receivingUserId) {
+        this.receivingUserId = receivingUserId;
     }
     public String getEventType() {
         return eventType;
