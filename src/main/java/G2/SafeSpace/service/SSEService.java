@@ -29,19 +29,6 @@ public class SSEService {
     //private final Map<String, Sinks.Many<MessageDTO>> messageSinks = new ConcurrentHashMap<>();
     //private final Map<String, Sinks.Many<CommentDTO>> commentSinks = new ConcurrentHashMap<>();
 
-    private final PostService postService;
-
-
-    public SSEService(PostService postService) {
-        this.postService = postService;
-    }
-
-    @PostConstruct
-    public void init() {
-        List<PostDTO> initialPosts = postService.findAllPosts();
-        emitPosts(initialPosts);
-    }
-
     // PERSONAL SINKS
 
     private Sinks.Many<FriendshipDTO> getFriendRequestSink(String userId) {
@@ -101,17 +88,7 @@ public class SSEService {
         return Flux.merge(postEvents, likeEvents);
     }
 
-
     public void emitNewPost(PostDTO postDTO) {
         postSink.tryEmitNext(postDTO);
-    }
-
-    //populates sse with all the current posts in db during initialization
-    //this could also just be transformed to client side (getallposts()) once the user logs in?
-    public void emitPosts(List<PostDTO> posts) {
-        posts.forEach(post -> {
-            post.setEventType("initial_post");
-            emitNewPost(post);
-        });
     }
 }
