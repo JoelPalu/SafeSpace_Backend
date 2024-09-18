@@ -1,9 +1,11 @@
 package G2.SafeSpace.service;
 
 import G2.SafeSpace.dto.PostDTO;
+import G2.SafeSpace.entity.Comment;
 import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.event.PostCreatedEvent;
+import G2.SafeSpace.repository.CommentRepository;
 import G2.SafeSpace.repository.PostRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -18,11 +20,14 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final CommentRepository commentRepository;
 
     public PostService(PostRepository postRepository,
+                       CommentRepository commentRepository,
                        ApplicationEventPublisher eventPublisher) {
         this.postRepository = postRepository;
         this.eventPublisher = eventPublisher;
+        this.commentRepository = commentRepository;
     }
 
     public Post createPost(Post post, User user) {
@@ -117,6 +122,10 @@ public class PostService {
         }
     }
 
+    public List<Comment> getPostComments(Post post) {
+        return new ArrayList<>(post.getComments());
+    }
+
     // check if the post is owned by the user
     public boolean isPostOwner(Post post, User user) {
         return user.getPosts().contains(post);
@@ -126,4 +135,16 @@ public class PostService {
         return user.getLikedPosts().contains(findPostById(id));
     }
 
+    public Comment createComment(Comment comment, User user, Post post)
+    {
+        if (comment.getCommentContent() != null)
+        {
+            comment.setUser(user);
+            commentRepository.save(comment);
+            post.addComment(comment);
+            postRepository.save(post);
+            return comment;
+        }
+        return null;
+    }
 }
