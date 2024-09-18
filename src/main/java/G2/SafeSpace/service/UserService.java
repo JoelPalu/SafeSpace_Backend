@@ -186,9 +186,14 @@ public class UserService {
         }
     }
 
-    public boolean isFriend(User user, User friend) {
-        return user.getFriends().contains(friend);
+    public boolean hasSentFriendRequest(User sender, User receiver) {
+        return sender.getFriends().contains(receiver);
     }
+
+    public boolean areFriends(User sender, User receiver) {
+        return sender.getFriends().contains(receiver) && receiver.getFriends().contains(sender);
+    }
+
 
     public Optional<User> removeFriend(User user, User friend) {
         try {
