@@ -202,4 +202,35 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    @DeleteMapping("/post/{postID}/comment/{commentID}")
+    public ResponseEntity<String> deleteComment(@PathVariable int postID, @PathVariable int commentID) {
+        Optional<User> userOptional = getCurrentUser();
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Post post = postService.findPostById(postID);
+        User owner = post.getUsers().toArray(new User[0])[0];
+
+        Comment comment = postService.findCommentById(commentID);
+        if (comment == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Comment not found");
+        }
+
+        System.out.println(userOptional.get().getUserID());
+        System.out.println(owner.getUserID());
+        System.out.println(comment.getUser().getUserID());
+
+
+        if (userOptional.get().getUserID() == owner.getUserID()) {
+            postService.deleteComment(commentID);
+            return ResponseEntity.ok().body("Comment deleted successfully");
+        } else if (userOptional.get().getUserID() == comment.getUser().getUserID()) {
+            postService.deleteComment(commentID);
+            return ResponseEntity.ok().body("Comment deleted successfully");
+        }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User does not have permission to delete this comment");
+
+    }
+
 }
