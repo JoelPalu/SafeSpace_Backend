@@ -73,13 +73,13 @@ public class SSEService {
     }
 
     public Flux<ServerSentEvent<?>> getCombinedFlux() {
-        Flux<ServerSentEvent<?>> postEvents = postSink.asFlux()
+        Flux<ServerSentEvent<PostDTO>> postEvents = postSink.asFlux()
                 .map(post -> ServerSentEvent.<PostDTO>builder()
                         .data(post)
                         .event(post.getEventType())
                         .build());
 
-        Flux<ServerSentEvent<?>> likeEvents = likeSink.asFlux()
+        Flux<ServerSentEvent<LikeDTO>> likeEvents = likeSink.asFlux()
                 .map(like -> ServerSentEvent.<LikeDTO>builder()
                         .data(like)
                         .event(like.getEventType())

@@ -80,4 +80,16 @@ public class PostDTO {
     public void setEventType(String eventType) {
         this.eventType = eventType;
     }
+
+    @Override
+    public String toString() {
+        return "PostDTO {" +
+                "postID=" + postID +
+                ", postCreatorID=" + postCreatorID +
+                ", postContent='" + postContent + '\'' +
+                ", postPictureID='" + postPictureID + '\'' +
+                ", postDate='" + postDate + '\'' +
+                ", likeCount=" + likeCount +
+                '}';
+    }
 }
