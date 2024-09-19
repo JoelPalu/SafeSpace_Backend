@@ -28,6 +28,14 @@ public class Post {
     @ManyToMany(mappedBy = "likedPosts")
     private Set<User> likedUsers = new HashSet<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "postComments",
+            joinColumns = @JoinColumn(name = "post_ID"),
+            inverseJoinColumns = @JoinColumn(name = "comment_ID")
+    )
+    private Set<Comment> comments = new HashSet<>();
+
     public Post() {}
 
     public int getPostID() {
@@ -90,10 +98,21 @@ public class Post {
         }
     }
 
-    public void getPostDetails() {
-        System.out.println("POST DETAILS:" + "\nID: " + postID
-                + "\nCONTENT: " + Post_content
-                + "\nPICTURE ID: " + Post_pictureID
-                + "\nDATE: " + Post_date);
+    public Set<Comment> getComments() {
+        return this.comments;
+    }
+
+    public void addComment(Comment comment) {
+        if (comment != null) {
+            this.comments.add(comment);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "POST ENTITY: " +
+                "PostID: " + postID +
+                ", PostContent: " + Post_content +
+                ", PostPictureID: " + Post_pictureID;
     }
 }

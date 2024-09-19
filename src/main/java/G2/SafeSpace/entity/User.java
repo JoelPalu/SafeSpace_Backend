@@ -1,15 +1,14 @@
 package G2.SafeSpace.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -20,9 +19,10 @@ public class User implements UserDetails {
     private int userID;
 
     @Column(nullable = false)
-    private String Username;
+    private String username;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 
     @Column
@@ -40,6 +40,7 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "userID"),
             inverseJoinColumns = @JoinColumn(name = "postID")
     )
+    @JsonIgnore
     private Set<Post> posts = new HashSet<>();
 
     @ManyToMany
@@ -48,7 +49,17 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "userID"),
             inverseJoinColumns = @JoinColumn(name = "postID")
     )
+    @JsonIgnore
     private Set<Post> likedPosts = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "friendship",
+            joinColumns = @JoinColumn(name = "User1"),
+            inverseJoinColumns = @JoinColumn(name = "User2")
+    )
+    @JsonIgnore
+    private Set<User> friends = new HashSet<>();
 
     public User() {}
 
@@ -57,7 +68,7 @@ public class User implements UserDetails {
     }
 
     public String getUsername() {
-        return this.Username;
+        return this.username;
     }
 
     @Override
@@ -102,7 +113,7 @@ public class User implements UserDetails {
     }
 
     public void setUsername(String Username) {
-        this.Username = Username;
+        this.username = Username;
     }
 
     public void setPassword(String password) {
@@ -121,15 +132,6 @@ public class User implements UserDetails {
         return this;
     }
 
-    //FOR DEBUGGING
-    public void getUserDetails() {
-        System.out.println("USERINFO: \n" + "ID: " + this.userID
-                + "\nUSERNAME: " + this.Username
-                + "\nPASSWORD: " + this.password
-                + "\nPROFILEPICTURE_ID: " + this.ProfilePictureID
-                + "\nBIO: " + this.Bio
-                + "\nDATEOFCREATION: " + this.dateOfCreation );
-    }
 
     public Set<Post> getPosts() {
         return this.posts;
@@ -166,4 +168,34 @@ public class User implements UserDetails {
             post.getLikedUsers().remove(this);
         }
     }
+
+
+    public void addFriends(User user) {
+        if (user != null) {
+            this.friends.add(user);
+        }
+    }
+
+    public void removeFriends(User user) {
+        if (user != null) {
+            this.friends.remove(user);
+        }
+    }
+
+    public Set<User> getFriends() {
+        return this.friends;
+    }
+
+    @Override
+    public String toString() {
+        return "USER ENTITY: " +
+                "User ID: " + userID +
+                ", Username: " + username +
+                ", Bio: " + Bio +
+                ", ProfilePictureID: " + ProfilePictureID +
+                ", DateOfCreation: " + dateOfCreation +
+                "\nPosts: " + posts +
+                "\nLikedPosts: " + likedPosts;
+    }
+
 }
