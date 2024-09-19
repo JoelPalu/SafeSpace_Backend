@@ -57,29 +57,29 @@ public class SSEService {
     public void handleFriendshipEvent(FriendrequestEvent event) {
         FriendshipDTO friendshipDTO = event.getFriendshipDTO();
         String requesterId = String.valueOf(friendshipDTO.getRequestingUserId());
-        String recieverId = String.valueOf(friendshipDTO.getRecievingUserId());
+        String receiverId = String.valueOf(friendshipDTO.getReceivingUserId());
 
         // Get or create sinks for both users
         Sinks.Many<FriendshipDTO> friendRequestSink = getFriendRequestSink(requesterId);
-        Sinks.Many<FriendshipDTO> friendRecieverSink = getFriendRequestSink(recieverId);
+        Sinks.Many<FriendshipDTO> friendReceiverSink = getFriendRequestSink(receiverId);
 
         // Emit the event to both users
-        if (friendRequestSink != null && friendRecieverSink != null) {
+        if (friendRequestSink != null && friendReceiverSink != null) {
             friendRequestSink.tryEmitNext(friendshipDTO);
-            friendRecieverSink.tryEmitNext(friendshipDTO);
+            friendReceiverSink.tryEmitNext(friendshipDTO);
         } else {
             System.out.println("Friendship sink failed");
         }
     }
 
     public Flux<ServerSentEvent<?>> getCombinedFlux() {
-        Flux<ServerSentEvent<?>> postEvents = postSink.asFlux()
+        Flux<ServerSentEvent<PostDTO>> postEvents = postSink.asFlux()
                 .map(post -> ServerSentEvent.<PostDTO>builder()
                         .data(post)
                         .event(post.getEventType())
                         .build());
 
-        Flux<ServerSentEvent<?>> likeEvents = likeSink.asFlux()
+        Flux<ServerSentEvent<LikeDTO>> likeEvents = likeSink.asFlux()
                 .map(like -> ServerSentEvent.<LikeDTO>builder()
                         .data(like)
                         .event(like.getEventType())

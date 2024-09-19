@@ -35,4 +35,13 @@ public class FriendshipDTO {
     public void setEventType(String eventType) {
         this.eventType = eventType;
     }
+
+    @Override
+    public String toString() {
+        return "FriendshipDTO{" +
+                "requestingUserId=" + requestingUserId +
+                ", receivingUserId=" + receivingUserId +
+                ", eventType='" + eventType + '\'' +
+                '}';
+    }
 }
