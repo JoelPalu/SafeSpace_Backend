@@ -1,6 +1,8 @@
 package G2.SafeSpace.dto;
 
 import G2.SafeSpace.entity.Post;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +13,10 @@ public class PostDTO {
     private String postContent;
     private String postPictureID;
     private String postDate;
+    private int likeCount;
 
-    private List<Integer> likers = new ArrayList<>();
+    @JsonIgnore
+    private String eventType;
 
     public PostDTO(Post post) {
         this.postID = post.getPostID();
@@ -62,12 +66,30 @@ public class PostDTO {
         this.postDate = postDate;
     }
 
-    public List<Integer> getLikers() {
-        return likers;
+    public int getLikeCount() {
+        return this.likeCount;
     }
 
-    public void setLikers(List<Integer> likers) {
-        this.likers = likers;
+    public void setLikeCount(int likeCount) {
+        this.likeCount = likeCount;
     }
 
+    public String getEventType() {
+        return eventType;
+    }
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    @Override
+    public String toString() {
+        return "PostDTO {" +
+                "postID=" + postID +
+                ", postCreatorID=" + postCreatorID +
+                ", postContent='" + postContent + '\'' +
+                ", postPictureID='" + postPictureID + '\'' +
+                ", postDate='" + postDate + '\'' +
+                ", likeCount=" + likeCount +
+                '}';
+    }
 }

@@ -125,14 +125,18 @@ public class UserController {
 
         User friend = userService.findUserById(friend_id);
         if (friend != null) {
-            if (userService.isFriend(optionalUser.get(), friend)) {
+            if (userService.areFriends(optionalUser.get(), friend)) {
                 return ResponseEntity.status(HttpStatus.CONFLICT)
                         .body("Users are already friends.");
             }
+            if (userService.hasSentFriendRequest(optionalUser.get(), friend)) {
+                return ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body("Friend request has already been sent.");
+            }
+
             Optional<User> updatedUserOptional = userService.addFriend(optionalUser.get(), friend);
             if (updatedUserOptional.isPresent()) {
-                return ResponseEntity.ok().build();
-
+                return ResponseEntity.ok().body("Friend request has been sent.");
             }
         }
         return ResponseEntity.notFound().build();
@@ -145,18 +149,36 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
+        User currentUser = optionalUser.get();
         User friend = userService.findUserById(friend_id);
-        if (friend != null) {
-            if (!userService.isFriend(optionalUser.get(), friend)) {
-                return ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body("Users aren't friends.");
-            }
-            Optional<User> updatedUserOptional = userService.removeFriend(optionalUser.get(), friend);
-            if (updatedUserOptional.isPresent()) {
-                return ResponseEntity.ok().build();
-            }
+        if (friend == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Friend with given id does not exist.");
         }
-        return ResponseEntity.notFound().build();
+
+        // Check if users are friends
+        if (userService.areFriends(currentUser, friend)) {
+            // Users are friends, so remove the friendship
+            Optional<User> updatedUserOptional = userService.removeFriend(currentUser, friend);
+            if (updatedUserOptional.isPresent()) {
+                return ResponseEntity.ok().body("Friend has been removed.");
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to remove friend.");
+        }
+
+        // Check if a friend request was sent but not yet accepted
+        if (userService.hasSentFriendRequest(currentUser, friend)) {
+            Optional<User> updatedUserOptional = userService.removeFriend(currentUser, friend);
+            if (updatedUserOptional.isPresent()) {
+                return ResponseEntity.ok().body("Friend request has been removed.");
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to remove friend request.");
+        }
+
+        // If neither condition is met
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body("No pending friend request or friendship exists.");
     }
 
     @GetMapping("/users/friends")

@@ -4,9 +4,12 @@ import G2.SafeSpace.dto.PostDTO;
 import G2.SafeSpace.entity.Comment;
 import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
+import G2.SafeSpace.event.PostCreatedEvent;
 import G2.SafeSpace.repository.CommentRepository;
 import G2.SafeSpace.repository.PostRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +19,14 @@ import java.util.Optional;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final ApplicationEventPublisher eventPublisher;
     private final CommentRepository commentRepository;
 
-    public PostService(PostRepository postRepository, CommentRepository commentRepository) {
+    public PostService(PostRepository postRepository,
+                       CommentRepository commentRepository,
+                       ApplicationEventPublisher eventPublisher) {
         this.postRepository = postRepository;
+        this.eventPublisher = eventPublisher;
         this.commentRepository = commentRepository;
     }
 
@@ -28,7 +35,11 @@ public class PostService {
             post.setPost_content(post.getPost_content().trim());
             post.setPost_pictureID(post.getPost_pictureID());
             user.addPost(post);
-            return postRepository.save(post);
+            Post createdPost = postRepository.save(post);
+            PostDTO postDTO = new PostDTO(createdPost);
+            postDTO.setPostCreatorID(user.getUserID());
+            eventPublisher.publishEvent(new PostCreatedEvent(this, postDTO));
+            return createdPost;
         }
         return null;
     }
@@ -78,12 +89,11 @@ public class PostService {
         }
 
         if (!post.getLikedUsers().isEmpty()) {
-            List<Integer> likedUserIDs = new ArrayList<>();
-            post.getLikedUsers().forEach(liker -> likedUserIDs.add(liker.getUserID()));
-            postDTO.setLikers(likedUserIDs);
+            postDTO.setLikeCount(post.getLikedUsers().size());
         }
     }
 
+    @Transactional(readOnly = true)
     public List<PostDTO> findAllPosts() {
         try {
             List<Post> rawPosts = postRepository.findAll();
@@ -98,8 +108,6 @@ public class PostService {
             throw new RuntimeException("No posts found " + e.getMessage());
         }
     }
-
-    //public List<Post> findPostsByUsername(String username) {}
 
     public boolean deletePost(int id) {
         try {

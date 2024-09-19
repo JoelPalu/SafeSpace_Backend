@@ -1,6 +1,6 @@
 package G2.SafeSpace.service;
 
-import G2.SafeSpace.authentication.AuthenticationRequest;
+import G2.SafeSpace.dto.AuthenticationRequest;
 import G2.SafeSpace.dto.UserDTO;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.config.JwtService;

@@ -6,9 +6,9 @@ import G2.SafeSpace.entity.Comment;
 import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.repository.PostRepository;
-import G2.SafeSpace.repository.UserRepository;
 import G2.SafeSpace.service.PostService;
 import G2.SafeSpace.service.UserContextService;
+import G2.SafeSpace.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,18 +22,19 @@ import java.util.Optional;
 @RequestMapping("api/v1")
 public class PostController {
     private final PostService postService;
-    private final UserRepository userRepository;
     private final UserContextService userContextService;
     private final PostRepository postRepository;
+    private final UserService userService;
 
     @Autowired
     public PostController(PostService postService,
-                          UserRepository userRepository,
-                          UserContextService userContextService, PostRepository postRepository) {
+                          UserContextService userContextService,
+                          PostRepository postRepository,
+                          UserService userService) {
         this.postService = postService;
-        this.userRepository = userRepository;
         this.userContextService = userContextService;
         this.postRepository = postRepository;
+        this.userService = userService;
     }
 
     private Optional<User> getCurrentUser() {
@@ -53,10 +54,10 @@ public class PostController {
             if (postService.alreadyLikedPost(postID, optionalUser.get())) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("User already liked this post");
             }
-            User user = optionalUser.get();
-            user.addLikedPost(post);
-            userRepository.save(user);
-            return ResponseEntity.ok().body("Liked successfully");
+            if (userService.likeAdded(optionalUser.get(), post)) {
+                return ResponseEntity.ok().body("Liked successfully");
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add like");
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
     }
@@ -74,10 +75,10 @@ public class PostController {
                 return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT)
                         .body("Cannot remove like that was not given in the first place");
             }
-            User user = optionalUser.get();
-            user.removeLikedPost(post);
-            userRepository.save(user);
-            return ResponseEntity.ok().body("Removed like successfully");
+            if (userService.likeRemoved(optionalUser.get(), post)) {
+                return ResponseEntity.ok().body("Removed like successfully");
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to remove like");
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
     }
