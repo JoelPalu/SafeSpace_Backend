@@ -165,4 +165,17 @@ public class PostService {
             throw new RuntimeException("Error trying to delete comment " + e.getMessage());
         }
     }
+
+    public void updateComment(int commentID, Comment updatedComment) {
+        try {
+            Optional<Comment> currentCommentOptional = commentRepository.findById(commentID);
+            if (currentCommentOptional.isPresent()) {
+                Comment existingComment = currentCommentOptional.get();
+                existingComment.setCommentContent(updatedComment.getCommentContent());
+                commentRepository.save(existingComment);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Comment update failed, " + e.getMessage());
+        }
+    }
 }
