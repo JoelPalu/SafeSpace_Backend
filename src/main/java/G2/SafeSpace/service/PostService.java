@@ -149,4 +149,41 @@ public class PostService {
         }
         return null;
     }
+
+    public Comment findCommentById(int commentID) {
+        try {
+            Optional<Comment> currentCommentOptional = commentRepository.findById(commentID);
+            return currentCommentOptional.orElse(null);
+        } catch (Exception e) {
+            throw new RuntimeException("No comments found with id " + commentID + " " + e.getMessage());
+        }
+    }
+
+    public boolean deleteComment(int commentID) {
+        try {
+            Optional<Comment> optionalComment = commentRepository.findById(commentID);
+            if (optionalComment.isPresent()) {
+                Comment comment = optionalComment.get();
+                commentRepository.delete(comment);
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error trying to delete comment " + e.getMessage());
+        }
+    }
+
+    public void updateComment(int commentID, Comment updatedComment) {
+        try {
+            Optional<Comment> currentCommentOptional = commentRepository.findById(commentID);
+            if (currentCommentOptional.isPresent()) {
+                Comment existingComment = currentCommentOptional.get();
+                existingComment.setCommentContent(updatedComment.getCommentContent());
+                commentRepository.save(existingComment);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Comment update failed, " + e.getMessage());
+        }
+    }
 }

@@ -203,4 +203,43 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
+    @DeleteMapping("/post/comment/{commentID}")
+    public ResponseEntity<String> deleteComment(@PathVariable int commentID) {
+        Optional<User> userOptional = getCurrentUser();
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Comment comment = postService.findCommentById(commentID);
+        if (comment == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Comment not found");
+        }
+
+        if (userOptional.get().getUserID() == comment.getUser().getUserID()) {
+            postService.deleteComment(commentID);
+            return ResponseEntity.ok().body("Comment deleted successfully");
+        }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User does not have permission to delete this comment");
+    }
+
+    @PutMapping("/post/comment/{commentID}")
+    public ResponseEntity<String> updateComment(@PathVariable int commentID, @RequestBody Comment updatedComment) {
+        Optional<User> userOptional = getCurrentUser();
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        Comment comment = postService.findCommentById(commentID);
+        if (comment == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Comment not found");
+        }
+        if (userOptional.get().getUserID() == comment.getUser().getUserID()) {
+            postService.updateComment(commentID, updatedComment);
+            return ResponseEntity.ok().body("Comment updated successfully");
+        }
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User does not have permission to update this comment");
+    }
+
+
 }
