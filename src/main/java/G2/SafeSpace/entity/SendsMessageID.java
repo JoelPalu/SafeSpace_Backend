@@ -4,17 +4,16 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class SendsMessageID implements Serializable {
-    private int fromUserID;
-    private int toUserID;
-    private int messageID;
-
+    private int sender;
+    private int receiver;
+    private int message;
 
     public SendsMessageID() {}
 
-    public SendsMessageID(int fromUserID, int toUserID, int messageID) {
-        this.fromUserID = fromUserID;
-        this.toUserID = toUserID;
-        this.messageID = messageID;
+    public SendsMessageID(int sender, int receiver, int message) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.message = message;
     }
 
 
@@ -23,11 +22,36 @@ public class SendsMessageID implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SendsMessageID that = (SendsMessageID) o;
-        return fromUserID == that.fromUserID && toUserID == that.toUserID && messageID == that.messageID;
+        return sender == that.sender && receiver == that.receiver && message == that.message;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(fromUserID, toUserID, messageID);
+        return Objects.hash(sender, receiver, message);
     }
+
+    public int getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(int receiver) {
+        this.receiver = receiver;
+    }
+
+    public int getSender() {
+        return sender;
+    }
+
+    public void setSender(int sender) {
+        this.sender = sender;
+    }
+
+    public int getMessage() {
+        return message;
+    }
+
+    public void setMessage(int message) {
+        this.message = message;
+    }
+
 }

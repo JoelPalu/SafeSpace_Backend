@@ -9,12 +9,12 @@ public class SendsMessage {
     @Id
     @ManyToOne
     @JoinColumn(name = "from_userID", nullable = false, updatable = false)
-    private User user1;
+    private User sender;
 
     @Id
     @ManyToOne
     @JoinColumn(name = "to_userID", nullable = false, updatable = false)
-    private User user2;
+    private User receiver;
 
     @Id
     @ManyToOne
@@ -23,9 +23,33 @@ public class SendsMessage {
 
     public SendsMessage() {}
 
-    public SendsMessage(User user1, User user2, Message message) {
-        this.user1 = user1;
-        this.user2 = user2;
+    public SendsMessage(User sender, User receiver, Message message) {
+        this.sender = sender;
+        this.receiver = receiver;
+        this.message = message;
+    }
+
+    public User getSender() {
+        return sender;
+    }
+
+    public void setSender(User user1) {
+        this.sender = user1;
+    }
+
+    public User getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(User user2) {
+        this.receiver = user2;
+    }
+
+    public Message getMessage() {
+        return message;
+    }
+
+    public void setMessage(Message message) {
         this.message = message;
     }
 

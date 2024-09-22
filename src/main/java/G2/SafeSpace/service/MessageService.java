@@ -1,14 +1,14 @@
 package G2.SafeSpace.service;
 
-import G2.SafeSpace.dto.MessageSendRequest;
 import G2.SafeSpace.entity.Message;
+import G2.SafeSpace.entity.SendsMessage;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.repository.MessageRepository;
+import G2.SafeSpace.repository.SendsMessageRepository;
 import G2.SafeSpace.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -16,47 +16,31 @@ public class MessageService {
 
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final SendsMessageRepository sendsMessageRepository;
 
     @Autowired
     public MessageService(MessageRepository messageRepository,
-                          UserRepository userRepository) {
+                          UserRepository userRepository,
+                          SendsMessageRepository sendsMessageRepository) {
         this.messageRepository = messageRepository;
         this.userRepository = userRepository;
+        this.sendsMessageRepository = sendsMessageRepository;
     }
 
-    public List<Message> getAllMessages() {
-        return messageRepository.findAll();
-    }
-
-    public boolean sendMessage(MessageSendRequest request) {
-        Optional<User> sender = userRepository.findById(request.getSenderID());
-        Optional<User> receiver = userRepository.findById(request.getReceiverID());
-        String message = request.getMessage();
-        if (sender.isPresent() && receiver.isPresent() && !request.getMessage().trim().isEmpty()) {
+    public SendsMessage sendMessage(int msgSender, int msgReceiver, String messageContent) {
+        Optional<User> sender = userRepository.findById(msgSender);
+        Optional<User> receiver = userRepository.findById(msgReceiver);
+        if (sender.isPresent() && receiver.isPresent() && !messageContent.trim().isEmpty()) {
+            
+            //create new message
             Message newMessage = new Message();
-            newMessage.setMessageContent(message);
-            messageRepository.saveAndFlush(newMessage);
-            //update jointable here with id's
-            return true;
-        }
-        return false;
-    }
+            newMessage.setMessageContent(messageContent);
+            messageRepository.save(newMessage);
 
-    public boolean deleteMessage(int id) {
-        if (messageRepository.existsById(id)) {
-            messageRepository.deleteById(id);
-            return true;
-        } else {
-            return false;
+            // Create the association in SendsMessage
+            SendsMessage sendsMessage = new SendsMessage(sender.get(), receiver.get(), newMessage);
+            return sendsMessageRepository.save(sendsMessage);
         }
-    }
-
-    public boolean updateMessage(int id, Message updatedMessage) {
-        if (messageRepository.existsById(id)) {
-            messageRepository.save(updatedMessage);
-            return true;
-        } else {
-            return false;
-        }
+        return null;
     }
 }
