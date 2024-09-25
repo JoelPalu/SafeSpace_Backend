@@ -1,6 +1,7 @@
 package G2.SafeSpace.service;
 
 import G2.SafeSpace.dto.MessageDTO;
+import G2.SafeSpace.dto.MessageUpdate;
 import G2.SafeSpace.dto.MessagesDTO;
 import G2.SafeSpace.entity.Message;
 import G2.SafeSpace.entity.SendsMessage;
@@ -71,7 +72,7 @@ public class MessageService {
     public boolean deleteMessage(User msgSender, Message message) {
         SendsMessage result = sendsMessageRepository.findByMessage(message);
         if (result != null) {
-            if (isMessageOwner(msgSender, result)) {
+            if (result.getSender().equals(msgSender)) {
                 sendsMessageRepository.delete(result);
                 messageRepository.delete(message);
                 return true;
@@ -81,8 +82,23 @@ public class MessageService {
         return false;
     }
 
-    public boolean isMessageOwner(User sender, SendsMessage result) {
-        return result.getSender().equals(sender);
+    public boolean updateMessage(MessageUpdate message) {
+        Optional<Message> currentMessage = messageRepository.findById(message.getMessageID());
+        if (currentMessage.isPresent()) {
+            currentMessage.get().setMessageContent(message.getMessage());
+            messageRepository.save(currentMessage.get());
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isMessageOwner(int messageID, User sender) {
+        Optional<Message> message = messageRepository.findById(messageID);
+        if (message.isPresent()) {
+            SendsMessage result = sendsMessageRepository.findByMessage(message.get());
+            return result.getSender().equals(sender);
+        }
+        return false;
     }
 
 }

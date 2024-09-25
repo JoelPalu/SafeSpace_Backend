@@ -1,6 +1,7 @@
 package G2.SafeSpace.controller;
 
 import G2.SafeSpace.dto.MessageDTO;
+import G2.SafeSpace.dto.MessageUpdate;
 import G2.SafeSpace.dto.MessagesDTO;
 import G2.SafeSpace.entity.Message;
 import G2.SafeSpace.entity.SendsMessage;
@@ -25,15 +26,14 @@ public class MessageController {
     private final MessageRepository messageRepository;
     private final UserContextService userContextService;
     private final MessageService messageService;
-    private final SendsMessageRepository sendsMessageRepository;
+
 
     public MessageController(MessageRepository messageRepository,
                              UserContextService userContextService,
-                             MessageService messageService, SendsMessageRepository sendsMessageRepository) {
+                             MessageService messageService) {
         this.messageRepository = messageRepository;
         this.userContextService = userContextService;
         this.messageService = messageService;
-        this.sendsMessageRepository = sendsMessageRepository;
     }
 
     private Optional<User> getCurrentUser() {
@@ -79,7 +79,20 @@ public class MessageController {
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not the message owner.");
         }
-
     }
 
+    @PutMapping("/message/update")
+    public ResponseEntity<String> updateMessage(@RequestBody MessageUpdate message) {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        if (!messageService.isMessageOwner(message.getMessageID(), optionalUser.get())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not the message owner.");
+        }
+        if (messageService.updateMessage(message)) {
+            return ResponseEntity.ok("Message updated successfully!");
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
 }
