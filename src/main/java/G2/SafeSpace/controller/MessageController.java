@@ -2,6 +2,7 @@ package G2.SafeSpace.controller;
 
 import G2.SafeSpace.dto.MessageDTO;
 import G2.SafeSpace.dto.MessagesDTO;
+import G2.SafeSpace.entity.Message;
 import G2.SafeSpace.entity.SendsMessage;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.repository.MessageRepository;
@@ -57,33 +58,28 @@ public class MessageController {
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        // Fetch sent and received messages
-        List<SendsMessage> sentMessages = sendsMessageRepository.findBySender(optionalUser.get());
-        List<SendsMessage> receivedMessages = sendsMessageRepository.findByReceiver(optionalUser.get());
-
-        // Convert to DTOs
-        List<MessageDTO> sentMessageDTOs = sentMessages.stream()
-                .map(MessageDTO::new)
-                .collect(Collectors.toList());
-
-        List<MessageDTO> receivedMessageDTOs = receivedMessages.stream()
-                .map(MessageDTO::new)
-                .collect(Collectors.toList());
-
-        // Return both lists in a single DTO
-        MessagesDTO messagesDTO = new MessagesDTO(sentMessageDTOs, receivedMessageDTOs);
-
-        return ResponseEntity.ok(messagesDTO);
+        return ResponseEntity.ok(messageService.getMessages(optionalUser.get()));
     }
 
-    @DeleteMapping("/message/delete")
-    public ResponseEntity<String> deleteMessage(@RequestParam int messageID) {
+    @DeleteMapping("/message/delete/{messageID}")
+    public ResponseEntity<String> deleteMessage(@PathVariable int messageID) {
         Optional<User> optionalUser = getCurrentUser();
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        messageService.deleteMessage(optionalUser.get(), messageID);
-        return ResponseEntity.ok("Message deleted successfully!");
+        Optional<Message> message = messageRepository.findById(messageID);
+        if (message.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Message not found.");
+        }
+        if (messageService.deleteMessage(optionalUser.get(), message.get())) {
+            if (messageRepository.existsById(messageID)) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Message deletion failed");
+            }
+            return ResponseEntity.ok("Message deleted successfully!");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not the message owner.");
+        }
+
     }
 
 }

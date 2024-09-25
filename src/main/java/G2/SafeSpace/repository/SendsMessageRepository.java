@@ -1,5 +1,6 @@
 package G2.SafeSpace.repository;
 
+import G2.SafeSpace.entity.Message;
 import G2.SafeSpace.entity.SendsMessage;
 import G2.SafeSpace.entity.SendsMessageID;
 import G2.SafeSpace.entity.User;
@@ -14,4 +15,6 @@ public interface SendsMessageRepository extends JpaRepository<SendsMessage, Send
 
     // Fetch messages where the user is the receiver
     List<SendsMessage> findByReceiver(User receiver);
+
+    SendsMessage findByMessage(Message message);
 }

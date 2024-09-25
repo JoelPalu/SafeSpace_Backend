@@ -1,5 +1,7 @@
 package G2.SafeSpace.service;
 
+import G2.SafeSpace.dto.MessageDTO;
+import G2.SafeSpace.dto.MessagesDTO;
 import G2.SafeSpace.entity.Message;
 import G2.SafeSpace.entity.SendsMessage;
 import G2.SafeSpace.entity.User;
@@ -8,8 +10,11 @@ import G2.SafeSpace.repository.SendsMessageRepository;
 import G2.SafeSpace.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MessageService {
@@ -43,4 +48,41 @@ public class MessageService {
         }
         return null;
     }
+
+    public MessagesDTO getMessages(User user) {
+
+        // Fetch sent and received messages
+        List<SendsMessage> sentMessages = sendsMessageRepository.findBySender(user);
+        List<SendsMessage> receivedMessages = sendsMessageRepository.findByReceiver(user);
+
+        // Convert to DTOs
+        List<MessageDTO> sentMessageDTOs = sentMessages.stream()
+                .map(MessageDTO::new)
+                .collect(Collectors.toList());
+
+        List<MessageDTO> receivedMessageDTOs = receivedMessages.stream()
+                .map(MessageDTO::new)
+                .collect(Collectors.toList());
+
+        // Return both lists in a single DTO
+        return new MessagesDTO(sentMessageDTOs, receivedMessageDTOs);
+    }
+
+    public boolean deleteMessage(User msgSender, Message message) {
+        SendsMessage result = sendsMessageRepository.findByMessage(message);
+        if (result != null) {
+            if (isMessageOwner(msgSender, result)) {
+                sendsMessageRepository.delete(result);
+                messageRepository.delete(message);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    public boolean isMessageOwner(User sender, SendsMessage result) {
+        return result.getSender().equals(sender);
+    }
+
 }
