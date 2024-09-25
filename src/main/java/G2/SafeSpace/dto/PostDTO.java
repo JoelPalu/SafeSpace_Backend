@@ -10,6 +10,7 @@ import java.util.List;
 public class PostDTO {
     private int postID;
     private int postCreatorID;
+    private String postCreatorName;
     private String postContent;
     private String postPictureID;
     private String postDate;
@@ -77,8 +78,16 @@ public class PostDTO {
     public String getEventType() {
         return eventType;
     }
+
     public void setEventType(String eventType) {
         this.eventType = eventType;
+    }
+
+    public void setPostCreatorName(String postCreatorName) {
+        this.postCreatorName = postCreatorName;
+    }
+    public String getPostCreatorName() {
+        return postCreatorName;
     }
 
     @Override

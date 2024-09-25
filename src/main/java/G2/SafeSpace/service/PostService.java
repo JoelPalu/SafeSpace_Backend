@@ -86,6 +86,7 @@ public class PostService {
         if (!post.getUsers().isEmpty()) {
             User postCreator = post.getUsers().iterator().next();
             postDTO.setPostCreatorID(postCreator.getUserID());
+            postDTO.setPostCreatorName(postCreator.getUsername());
         }
 
         if (!post.getLikedUsers().isEmpty()) {
