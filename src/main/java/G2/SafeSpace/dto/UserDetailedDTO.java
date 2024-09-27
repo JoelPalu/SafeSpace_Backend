@@ -10,8 +10,17 @@ public class UserDetailedDTO {
     private List<PostDTO> likedPosts;
     private List<UserDTO> friends;
     private MessagesDTO messages;
+    private List<CommentDTO> comments;
 
     public UserDetailedDTO() {}
+
+
+    public List<CommentDTO> getComments() {
+        return comments;
+    }
+    public void setComments(List<CommentDTO> comments) {
+        this.comments = comments;
+    }
 
     public List<PostDTO> getPosts() {
         return posts;

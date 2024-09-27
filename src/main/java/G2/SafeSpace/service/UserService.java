@@ -2,10 +2,12 @@ package G2.SafeSpace.service;
 
 import G2.SafeSpace.config.JwtService;
 import G2.SafeSpace.dto.*;
+import G2.SafeSpace.entity.Comment;
 import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.event.FriendrequestEvent;
 import G2.SafeSpace.event.LikeEvent;
+import G2.SafeSpace.repository.CommentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,6 +26,7 @@ public class UserService {
     private final JwtService jwtService;
     private final ApplicationEventPublisher eventPublisher;
     private final MessageService messageService;
+    private final CommentRepository commentRepository;
 
     @Autowired
     public UserService(UserRepository userRepository,
@@ -31,13 +34,15 @@ public class UserService {
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
                        ApplicationEventPublisher eventPublisher,
-                       MessageService messageService) {
+                       MessageService messageService,
+                       CommentRepository commentRepository) {
         this.userRepository = userRepository;
         this.userContextService = userContextService;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.eventPublisher = eventPublisher;
         this.messageService = messageService;
+        this.commentRepository = commentRepository;
     }
 
     public List<UserDTO> findAllUsers() {
@@ -168,6 +173,12 @@ public class UserService {
         }
         userDetailedDTO.setFriends(userDTOS);
         userDetailedDTO.setMessages(messageService.getMessages(user));
+        List<Comment> comments = commentRepository.findAllByUser(user);
+        ArrayList<CommentDTO> commentDTOS = new ArrayList<>();
+        for (Comment userComment : comments) {
+            commentDTOS.add(new CommentDTO(userComment));
+        }
+        userDetailedDTO.setComments(commentDTOS);
         return userDetailedDTO;
     }
 
