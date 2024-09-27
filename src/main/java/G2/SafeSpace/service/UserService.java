@@ -59,19 +59,18 @@ public class UserService {
         }
     }
 
-    public boolean checkUsernameAvailability(String username) {
+    public boolean isUsernameAvailable(String username) {
         List<User> users = userRepository.findAll();
-        boolean taken = false;
+        boolean available = true;
         if (!users.isEmpty()) {
             for (User user : users) {
-                if (user.getUsername().equals(username)) {
-                    taken = true;
+                if (user.getUsername().equalsIgnoreCase(username)) {
+                    available = false;
                     break;
                 }
             }
-            return !taken;
         }
-        return false;
+        return available;
     }
 
 
@@ -98,7 +97,7 @@ public class UserService {
                 User existingUser = existingUserOptional.get();
 
                 if (!existingUser.getUsername().equals(username) && username != null && !username.trim().isEmpty()) {
-                    if (checkUsernameAvailability(username)) {
+                    if (isUsernameAvailable(username)) {
                         existingUser.setUsername(username.trim());
                     } else {
                         return new UpdateUserResponse(true, false, null);
