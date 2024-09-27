@@ -34,11 +34,15 @@ public class SecurityFilter {
                     authConfig.requestMatchers(HttpMethod.POST, "/auth/login").permitAll();
                     authConfig.requestMatchers("/error").permitAll();
 
+                    // Authentication for static resources
+                    authConfig.requestMatchers("/**").authenticated();
+
                     //authenticated users can access all other endpoints
                     authConfig.requestMatchers("api/v1/users").authenticated();
                     authConfig.requestMatchers("api/v1/users/**").authenticated();
                     authConfig.requestMatchers("api/v1/post/").authenticated();
                     authConfig.requestMatchers("api/v1/post/**").authenticated();
+                    authConfig.requestMatchers("api/v1/storage/**").authenticated();
                     authConfig.requestMatchers("api/v1/message/**").authenticated();
 
                     // currently just for testing permitAll
