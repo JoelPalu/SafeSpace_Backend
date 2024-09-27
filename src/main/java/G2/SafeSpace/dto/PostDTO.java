@@ -10,10 +10,12 @@ import java.util.List;
 public class PostDTO {
     private int postID;
     private int postCreatorID;
+    private String postCreatorName;
     private String postContent;
     private String postPictureID;
     private String postDate;
     private int likeCount;
+    private int commentCount;
 
     @JsonIgnore
     private String eventType;
@@ -74,11 +76,26 @@ public class PostDTO {
         this.likeCount = likeCount;
     }
 
+    public void setCommentCount(int commentCount) {
+        this.commentCount = commentCount;
+    }
+    public int getCommentCount() {
+        return this.commentCount;
+    }
+
     public String getEventType() {
         return eventType;
     }
+
     public void setEventType(String eventType) {
         this.eventType = eventType;
+    }
+
+    public void setPostCreatorName(String postCreatorName) {
+        this.postCreatorName = postCreatorName;
+    }
+    public String getPostCreatorName() {
+        return postCreatorName;
     }
 
     @Override
