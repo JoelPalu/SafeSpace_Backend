@@ -15,8 +15,6 @@ import java.util.UUID;
 public class ImageService {
     private final Path pathProfile = Path.of("/var/www/html/pictures/profile");
     private final Path pathPost = Path.of("/var/www/html/pictures/post");
-    private final Path pathTest = Path.of("C:/Users/miroh/Documents/testi"); // for local testing only
-    private final Path pathTestPost = Path.of("C:/Users/miroh/Documents/testi/post"); // for local testing only, remember to change when build
 
 
     public String saveImageToStorage(MultipartFile image, boolean isProfile) {
@@ -24,11 +22,9 @@ public class ImageService {
         try {
             String uniqueFilename = UUID.randomUUID() + "_" + image.getOriginalFilename();
             if (isProfile) {
-                //filePath = pathProfile.resolve(uniqueFilename);
-                filePath = pathTest.resolve(uniqueFilename);
+                filePath = pathProfile.resolve(uniqueFilename);
             } else {
-                //filePath = pathPost.resolve(uniqueFilename);
-                filePath = pathTestPost.resolve(uniqueFilename);
+                filePath = pathPost.resolve(uniqueFilename);
             }
 
 
