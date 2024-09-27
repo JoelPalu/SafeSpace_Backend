@@ -91,7 +91,9 @@ public class PostService {
 
         if (!post.getLikedUsers().isEmpty()) {
             postDTO.setLikeCount(post.getLikedUsers().size());
+            postDTO.setCommentCount(post.getComments().size());
         }
+
     }
 
     @Transactional(readOnly = true)

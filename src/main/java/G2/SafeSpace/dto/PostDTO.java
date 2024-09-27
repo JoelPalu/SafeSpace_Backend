@@ -15,6 +15,7 @@ public class PostDTO {
     private String postPictureID;
     private String postDate;
     private int likeCount;
+    private int commentCount;
 
     @JsonIgnore
     private String eventType;
@@ -73,6 +74,13 @@ public class PostDTO {
 
     public void setLikeCount(int likeCount) {
         this.likeCount = likeCount;
+    }
+
+    public void setCommentCount(int commentCount) {
+        this.commentCount = commentCount;
+    }
+    public int getCommentCount() {
+        return this.commentCount;
     }
 
     public String getEventType() {
