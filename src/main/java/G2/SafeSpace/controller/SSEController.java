@@ -12,7 +12,7 @@ import reactor.core.publisher.Flux;
 
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("api/v1")
 public class SSEController {
     private final SSEService sseService;
 
