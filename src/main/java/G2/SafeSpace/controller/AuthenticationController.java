@@ -25,7 +25,7 @@ public class AuthenticationController {
         String username = request.getUsername();
         String password = request.getPassword();
         if (username != null && !username.trim().isEmpty() && password != null && !password.trim().isEmpty()) {
-            if (userService.checkUsernameAvailability(request.getUsername())) {
+            if (userService.isUsernameAvailable(request.getUsername())) {
                 return ResponseEntity.status(HttpStatus.CREATED).body(authenticationService.register(request));
             } else {
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();

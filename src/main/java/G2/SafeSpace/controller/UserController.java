@@ -2,6 +2,7 @@ package G2.SafeSpace.controller;
 
 import G2.SafeSpace.dto.UpdateUserResponse;
 import G2.SafeSpace.dto.UserDTO;
+import G2.SafeSpace.dto.UserDetailedDTO;
 import G2.SafeSpace.entity.User;
 import G2.SafeSpace.repository.UserRepository;
 import G2.SafeSpace.service.UserContextService;
@@ -34,6 +35,20 @@ public class UserController {
     private Optional<User> getCurrentUser() {
         return userContextService.getCurrentUser();
     }
+
+    @GetMapping("/users/me")
+    public ResponseEntity<UserDetailedDTO> getMe() {
+        Optional<User> optionalUser = getCurrentUser();
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+        UserDetailedDTO detailed = userService.generateUserDetailedDTO(optionalUser.get());
+        if (detailed != null) {
+            return ResponseEntity.ok(detailed);
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+
 
     //get all users
     @GetMapping("/users")
