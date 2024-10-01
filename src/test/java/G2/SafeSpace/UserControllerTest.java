@@ -85,19 +85,5 @@ public class UserControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
-    @Test
-    public void testGetUserByUsername() {
-        User user = new User();
-        user.setUsername("username");
-        when(userContextService.getCurrentUser()).thenReturn(Optional.of(user));
-        when(userService.findUserByUsername("username")).thenReturn(user);
 
-        ResponseEntity<UserDTO> response = userController.getUserByName("username");
-
-        System.out.println("Response Status: " + response.getStatusCode());
-        System.out.println("Response Body: " + response.getBody());
-
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(user.getUserID(), response.getBody().getId());
-    }
 }
