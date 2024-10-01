@@ -16,7 +16,6 @@ java -jar SafeSpaceAPI.jar
 ```
 
 
-
 ## Tietokannan Rakenne 
 
 | Tietokanta |
@@ -26,10 +25,9 @@ java -jar SafeSpaceAPI.jar
 
 ## Käytetyt työkalut
 
-### Kirjastot:
-
 ### Rungot:
-- RESTful API rakennettu [Spring Boot](https://spring.io/projects/spring-boot) avulla.
+
+- RESTful API rakennettu [Spring Boot](https://spring.io/projects/spring-boot) ja [Maven](https://maven.apache.org/) avulla.
 
 ### Ohjelmointikielet:
 - Java
