@@ -33,7 +33,7 @@ java -jar SafeSpaceAPI.jar
 - Java
 - mySQL
 
-## Documentaatio: 
+## Dokumentaatio: 
 - [apiDoc](https://documenter.getpostman.com/view/34136497/2sAXxJhEWW)
 
 ## Tekijät:
