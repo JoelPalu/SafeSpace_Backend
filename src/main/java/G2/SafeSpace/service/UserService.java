@@ -84,54 +84,45 @@ public class UserService {
         }
     }
 
-    public UpdateUserResponse updateUser(User updatedUser) {
-        try {
-            Optional<User> existingUserOptional = userContextService.getCurrentUser();
-            if (existingUserOptional.isPresent()) {
+    public UserDTO updateUser(UpdateUserDTO updatedUser, User existingUser) {
 
-                String username = updatedUser.getUsername();
-                String password = updatedUser.getPassword();
-                String bio = updatedUser.getBio();
-                String profilepictureID = updatedUser.getProfilePictureID();
+        String username = updatedUser.getUsername();
+        String password = updatedUser.getPassword();
+        String bio = updatedUser.getBio();
+        String profilepictureID = updatedUser.getProfilePictureID();
 
-                User existingUser = existingUserOptional.get();
-
-                if (!existingUser.getUsername().equals(username) && username != null && !username.trim().isEmpty()) {
-                    if (isUsernameAvailable(username)) {
-                        existingUser.setUsername(username.trim());
-                    } else {
-                        return new UpdateUserResponse(true, false, null);
-                    }
-                }
-                if (!existingUser.getPassword().equals(password) && password != null && !password.trim().isEmpty()) {
-                    existingUser.setPassword(passwordEncoder.encode(password.trim()));
-                }
-
-                //bio updating, null should be sent if no changes were made
-                //empty string if user wants to clear the bio
-                if (bio != null && !bio.equals(existingUser.getBio())) {
-                    if (bio.trim().isEmpty()) {
-                        existingUser.setBio(null);
-                    } else {
-                        existingUser.setBio(bio.trim());
-                    }
-                }
-
-                if (!existingUser.getProfilePictureID().equals(profilepictureID) && profilepictureID != null) {
-                    existingUser.setProfilePictureID(profilepictureID);
-                }
-
-                User savedUser = userRepository.save(existingUser);
-
-                UserDTO userDTO = new UserDTO(savedUser, false);
-                userDTO.setJwt(jwtService.generateToken(savedUser, generateExtraClaims(savedUser)));
-
-                return new UpdateUserResponse(false, true, userDTO);
-            } else return null;
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to update user " + e.getMessage());
+        if (!existingUser.getUsername().equals(username) && username != null && !username.trim().isEmpty()) {
+            if (isUsernameAvailable(username)) {
+                existingUser.setUsername(username.trim());
+            } else {
+                return null;
+            }
         }
-    }
+        if (!existingUser.getPassword().equals(password) && password != null && !password.trim().isEmpty()) {
+            existingUser.setPassword(passwordEncoder.encode(password.trim()));
+        }
+
+        //bio updating, null should be sent if no changes were made
+        //empty string if user wants to clear the bio
+        if (bio != null && !bio.equals(existingUser.getBio())) {
+            if (bio.trim().isEmpty()) {
+                existingUser.setBio(null);
+            } else {
+                existingUser.setBio(bio.trim());
+            }
+        }
+
+        if (!existingUser.getProfilePictureID().equals(profilepictureID) && profilepictureID != null) {
+            existingUser.setProfilePictureID(profilepictureID);
+        }
+
+        User savedUser = userRepository.save(existingUser);
+
+        UserDTO userDTO = new UserDTO(savedUser, false);
+        userDTO.setJwt(jwtService.generateToken(savedUser, generateExtraClaims(savedUser)));
+
+        return userDTO;
+}
 
     public boolean deleteUser() {
         try {

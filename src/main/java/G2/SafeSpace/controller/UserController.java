@@ -1,6 +1,6 @@
 package G2.SafeSpace.controller;
 
-import G2.SafeSpace.dto.UpdateUserResponse;
+import G2.SafeSpace.dto.UpdateUserDTO;
 import G2.SafeSpace.dto.UserDTO;
 import G2.SafeSpace.dto.UserDetailedDTO;
 import G2.SafeSpace.entity.User;
@@ -8,8 +8,6 @@ import G2.SafeSpace.repository.UserRepository;
 import G2.SafeSpace.service.UserContextService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import G2.SafeSpace.service.UserService;
 
@@ -97,20 +95,16 @@ public class UserController {
     //update user
     // REMOVED PATH VARIABLE FROM UPDATE USER
     @PutMapping("/users/update")
-    public ResponseEntity<UserDTO> updateUser(@RequestBody User updatedUser) {
+    public ResponseEntity<UserDTO> updateUser(@RequestBody UpdateUserDTO updatedUser) {
         Optional<User> optionalUser = getCurrentUser();
         if (optionalUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        UpdateUserResponse response = userService.updateUser(updatedUser);
-        if (response != null) {
-            if (response.isNameTaken()) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
-            UserDTO user = response.getUser();
-            return ResponseEntity.ok(user);
+        UserDTO response = userService.updateUser(updatedUser, optionalUser.get());
+        if (response == null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(response);
         }
     }
 
