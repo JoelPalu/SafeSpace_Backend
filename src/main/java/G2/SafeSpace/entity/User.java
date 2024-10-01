@@ -191,6 +191,7 @@ public class User implements UserDetails {
         return "USER ENTITY: " +
                 "User ID: " + userID +
                 ", Username: " + username +
+                ", Password: " + password +
                 ", Bio: " + Bio +
                 ", ProfilePictureID: " + ProfilePictureID +
                 ", DateOfCreation: " + dateOfCreation +
