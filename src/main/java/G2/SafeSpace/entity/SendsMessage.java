@@ -53,4 +53,9 @@ public class SendsMessage {
         this.message = message;
     }
 
+    @Override
+    public String toString() {
+        return "SendsMessage [sender=" + sender.getUsername() + ", receiver=" + receiver.getUsername() + ", message=" + message + "]";
+    }
+
 }

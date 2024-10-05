@@ -120,4 +120,20 @@ public class UserDTO {
     public void setFriends(List<Integer> friends) {
         this.friends = friends;
     }
+
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", bio='" + bio + '\'' +
+                ", profilePictureID='" + profilePictureID + '\'' +
+                ", dateOfCreation='" + dateOfCreation + '\'' +
+                ", jwt='" + jwt + '\'' +
+                ", posts=" + posts +
+                ", likedPosts=" + likedPosts +
+                ", friends=" + friends +
+                '}';
+    }
+
 }

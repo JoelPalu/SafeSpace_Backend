@@ -37,4 +37,9 @@ public class Message {
     public void setMessageContent(String messageContent) {
         this.messageContent = messageContent;
     }
+
+    @Override
+    public String toString() {
+        return "Message = ID: " + this.messageID + ", CONTENT: " + this.messageContent + ", DATE: " + this.dateOfMessage;
+    }
 }

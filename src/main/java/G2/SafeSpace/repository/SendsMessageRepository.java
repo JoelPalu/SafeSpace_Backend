@@ -17,4 +17,7 @@ public interface SendsMessageRepository extends JpaRepository<SendsMessage, Send
     List<SendsMessage> findByReceiver(User receiver);
 
     SendsMessage findByMessage(Message message);
+
+    // Fetch all sent and received messages
+    List<SendsMessage> findBySenderOrReceiver(User user, User user1);
 }
