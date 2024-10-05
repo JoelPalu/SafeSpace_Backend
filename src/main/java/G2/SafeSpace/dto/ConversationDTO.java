@@ -5,7 +5,7 @@ public class ConversationDTO {
 
     private UserDTO withUser;
     private int messageCount;
-    private ArrayList<MessageDTO> messages = new ArrayList<>();
+    private ArrayList<ConversationMessage> messages = new ArrayList<>();
 
     public ConversationDTO () {}
 
@@ -25,14 +25,14 @@ public class ConversationDTO {
         messageCount++;
     }
 
-    public ArrayList<MessageDTO> getMessages() {
+    public ArrayList<ConversationMessage> getMessages() {
         return messages;
     }
-    public void setMessages(ArrayList<MessageDTO> messages) {
+    public void setMessages(ArrayList<ConversationMessage> messages) {
         this.messages = messages;
     }
 
-    public void addMessage(MessageDTO message) {
+    public void addMessage(ConversationMessage message) {
         if (this.messages != null) {
             this.messages.add(message);
         }

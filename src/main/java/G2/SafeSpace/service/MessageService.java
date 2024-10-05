@@ -57,10 +57,14 @@ public class MessageService {
 
         // Loop through all the messages and create conversation for each new user.
         for (SendsMessage message : allMessages) {
+
             // mark the participant of the conversation
             User participant = null;
+            // flag if user is sender or receiver
+            boolean isSender = false;
 
             if (message.getSender().equals(user)) {
+                isSender = true;
                 participant = message.getReceiver();
             } else if (message.getReceiver().equals(user)) {
                 participant = message.getSender();
@@ -74,12 +78,12 @@ public class MessageService {
             // initialize the first dto before comparing
             if (conversations.isEmpty()) {
                 ConversationDTO conversationDTO = new ConversationDTO();
-                // mark the user that the conversation is with
                 conversationDTO.setWithUser(new UserDTO(participant, false));
-                conversationDTO.addMessage(new MessageDTO(message));
+                conversationDTO.addMessage(new ConversationMessage(message, isSender));
                 conversationDTO.incrementMessageCount();
                 conversations.add(conversationDTO);
 
+                // after the 1st initialization, rest of the messages get compared
                 // create new conversation if there is not one with participant / add message to existing conversation
             } else {
                 ConversationDTO conversationDTO = getConversation(participant, conversations);
@@ -87,10 +91,10 @@ public class MessageService {
                     conversationDTO = new ConversationDTO();
                     conversationDTO.setWithUser(new UserDTO(participant, false));
                     conversationDTO.incrementMessageCount();
-                    conversationDTO.addMessage(new MessageDTO(message));
+                    conversationDTO.addMessage(new ConversationMessage(message, isSender));
                     conversations.add(conversationDTO);
                 } else {
-                    conversationDTO.addMessage(new MessageDTO(message));
+                    conversationDTO.addMessage(new ConversationMessage(message, isSender));
                     conversationDTO.incrementMessageCount();
                 }
             }
@@ -103,19 +107,16 @@ public class MessageService {
     public ConversationDTO getConversation(User withUser, List<ConversationDTO> conversations) {
         if (withUser != null) {
             for (ConversationDTO conversation : conversations) {
-                int convoUserId = conversation.getWithUser().getId(); // Assuming getId() returns int
-                int targetUserId = withUser.getUserID(); // Assuming getUserID() returns int
+                int convoUserId = conversation.getWithUser().getId();
+                int targetUserId = withUser.getUserID();
 
-                System.out.println("with user id: " + targetUserId +
-                        ", convo user id: " + convoUserId +
-                        " same? " + (convoUserId == targetUserId));
+//                System.out.println("with user id: " + targetUserId +
+//                        ", convo user id: " + convoUserId +
+//                        " same? " + (convoUserId == targetUserId));
 
-                // Compare IDs directly
+                // return the existing conversation
                 if (convoUserId == targetUserId) {
-                    System.out.println("Specific convo found");
                     return conversation;
-                } else {
-                    System.out.println("specific convo not found.");
                 }
             }
         } else {
