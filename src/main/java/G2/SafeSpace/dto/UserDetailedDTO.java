@@ -5,7 +5,9 @@ import java.util.List;
 public class UserDetailedDTO {
 
     private UserDTO user;
-
+    private int followingCount;
+    private int followersCount;
+    private int friendsCount;
     private List<PostDTO> posts;
     private List<PostDTO> likedPosts;
     private List<UserDTO> following;
@@ -76,6 +78,25 @@ public class UserDetailedDTO {
 
     public void setUser(UserDTO user) {
         this.user = user;
+    }
+
+    public int getFollowingCount() {
+        return followingCount;
+    }
+    public void addFollowingCount() {
+        this.followingCount++;
+    }
+    public int getFollowersCount() {
+        return followersCount;
+    }
+    public void addFollowersCount() {
+        this.followersCount++;
+    }
+    public int getFriendsCount() {
+        return friendsCount;
+    }
+    public void addFriendsCount() {
+        this.friendsCount++;
     }
 
 }

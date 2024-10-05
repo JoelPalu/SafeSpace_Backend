@@ -164,14 +164,17 @@ public class UserService {
         for (User friend : user.getFriends()) {
             //check if both users are following each other
             if (friend.getFriends().contains(user)) {
+                userDetailedDTO.addFriendsCount();
                 friends.add(new UserDTO(friend, false));
             } else {
                 // otherwise current user is just following
+                userDetailedDTO.addFollowingCount();
                 following.add(new UserDTO(friend, false));
             }
         }
         for (User follower : followersList) {
             // if other users have added current user but not vise versa
+            userDetailedDTO.addFollowersCount();
             followers.add(new UserDTO(follower, false));
         }
         userDetailedDTO.setFollowing(following);
