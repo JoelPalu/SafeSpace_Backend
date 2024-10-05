@@ -5,20 +5,21 @@ import java.util.List;
 public class UserDetailedDTO {
 
     private UserDTO user;
-    private int followingCount;
-    private int followersCount;
-    private int friendsCount;
+    private UserData userData;
     private List<PostDTO> posts;
     private List<PostDTO> likedPosts;
-    private List<UserDTO> following;
-    private List<UserDTO> followers;
-    private List<UserDTO> friends;
     private List<ConversationDTO> conversations;
     private List<CommentDTO> comments;
 
     public UserDetailedDTO() {}
 
 
+    public UserData getUserData() {
+        return userData;
+    }
+    public void setUserData(UserData userData) {
+        this.userData = userData;
+    }
     public List<CommentDTO> getComments() {
         return comments;
     }
@@ -42,26 +43,6 @@ public class UserDetailedDTO {
         this.likedPosts = likedPosts;
     }
 
-    public List<UserDTO> getFollowing() {
-        return following;
-    }
-
-    public void setFollowing(List<UserDTO> following) {
-        this.following = following;
-    }
-
-    public List<UserDTO> getFollowers() {
-        return followers;
-    }
-    public void setFollowers(List<UserDTO> followers) {
-        this.followers = followers;
-    }
-    public List<UserDTO> getFriends() {
-        return friends;
-    }
-    public void setFriends(List<UserDTO> friends) {
-        this.friends = friends;
-    }
 
     public List<ConversationDTO> getConversations() {
         return conversations;
@@ -71,7 +52,6 @@ public class UserDetailedDTO {
         this.conversations = conversations;
     }
 
-
     public UserDTO getUser() {
         return user;
     }
@@ -80,23 +60,5 @@ public class UserDetailedDTO {
         this.user = user;
     }
 
-    public int getFollowingCount() {
-        return followingCount;
-    }
-    public void addFollowingCount() {
-        this.followingCount++;
-    }
-    public int getFollowersCount() {
-        return followersCount;
-    }
-    public void addFollowersCount() {
-        this.followersCount++;
-    }
-    public int getFriendsCount() {
-        return friendsCount;
-    }
-    public void addFriendsCount() {
-        this.friendsCount++;
-    }
 
 }

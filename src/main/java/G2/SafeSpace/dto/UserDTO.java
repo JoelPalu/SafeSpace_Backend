@@ -2,7 +2,9 @@ package G2.SafeSpace.dto;
 
 import G2.SafeSpace.entity.Post;
 import G2.SafeSpace.entity.User;
+import G2.SafeSpace.service.UserService;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,6 +16,9 @@ public class UserDTO {
     private String bio;
     private String profilePictureID;
     private String dateOfCreation;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private UserData userData;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String jwt;

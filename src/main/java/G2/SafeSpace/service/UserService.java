@@ -157,29 +157,8 @@ public class UserService {
         userDetailedDTO.setUser(userDTO);
         userDetailedDTO.setPosts(user.getPosts().stream().map(PostDTO::new).collect(Collectors.toList()));
         userDetailedDTO.setLikedPosts(user.getLikedPosts().stream().map(PostDTO::new).collect(Collectors.toList()));
-        ArrayList<UserDTO> following = new ArrayList<>();
-        ArrayList<UserDTO> followers = new ArrayList<>();
-        ArrayList<UserDTO> friends = new ArrayList<>();
-        List<User> followersList = userRepository.findFollowers(user.getUserID());
-        for (User friend : user.getFriends()) {
-            //check if both users are following each other
-            if (friend.getFriends().contains(user)) {
-                userDetailedDTO.addFriendsCount();
-                friends.add(new UserDTO(friend, false));
-            } else {
-                // otherwise current user is just following
-                userDetailedDTO.addFollowingCount();
-                following.add(new UserDTO(friend, false));
-            }
-        }
-        for (User follower : followersList) {
-            // if other users have added current user but not vise versa
-            userDetailedDTO.addFollowersCount();
-            followers.add(new UserDTO(follower, false));
-        }
-        userDetailedDTO.setFollowing(following);
-        userDetailedDTO.setFollowers(followers);
-        userDetailedDTO.setFriends(friends);
+        UserData userData = createUserData(user);
+        userDetailedDTO.setUserData(userData);
         userDetailedDTO.setConversations(messageService.getConversations(user));
         List<Comment> comments = commentRepository.findAllByUser(user);
         ArrayList<CommentDTO> commentDTOS = new ArrayList<>();
@@ -188,6 +167,36 @@ public class UserService {
         }
         userDetailedDTO.setComments(commentDTOS);
         return userDetailedDTO;
+    }
+
+    public UserData createUserData(User user) {
+        UserData userData = new UserData();
+
+        // separate different friendship statuses
+        ArrayList<UserDTO> following = new ArrayList<>();
+        ArrayList<UserDTO> followers = new ArrayList<>();
+        ArrayList<UserDTO> friends = new ArrayList<>();
+        List<User> followersList = userRepository.findFollowers(user.getUserID());
+        for (User friend : user.getFriends()) {
+            //check if both users are following each other
+            if (friend.getFriends().contains(user)) {
+                userData.addFriendCount();
+                friends.add(new UserDTO(friend, false));
+            } else {
+                // otherwise current user is just following
+                userData.addFollowingCount();
+                following.add(new UserDTO(friend, false));
+            }
+        }
+        for (User follower : followersList) {
+            // if other users have added current user but not vise versa
+            userData.addFollowerCount();
+            followers.add(new UserDTO(follower, false));
+        }
+        userData.setFollowing(following);
+        userData.setFollowers(followers);
+        userData.setFriends(friends);
+        return userData;
     }
 
     public Optional<User> addFriend(User user, User friend) {
