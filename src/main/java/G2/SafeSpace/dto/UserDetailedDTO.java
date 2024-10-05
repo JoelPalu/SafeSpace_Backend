@@ -13,7 +13,7 @@ public class UserDetailedDTO {
     private List<UserDTO> following;
     private List<UserDTO> followers;
     private List<UserDTO> friends;
-    private MessagesDTO messages;
+    private List<ConversationDTO> conversations;
     private List<CommentDTO> comments;
 
     public UserDetailedDTO() {}
@@ -63,12 +63,12 @@ public class UserDetailedDTO {
         this.friends = friends;
     }
 
-    public MessagesDTO getMessages() {
-        return messages;
+    public List<ConversationDTO> getConversations() {
+        return conversations;
     }
 
-    public void setMessages(MessagesDTO messages) {
-        this.messages = messages;
+    public void setConversations(List<ConversationDTO> conversations) {
+        this.conversations = conversations;
     }
 
 

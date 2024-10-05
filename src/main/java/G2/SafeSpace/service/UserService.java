@@ -180,7 +180,7 @@ public class UserService {
         userDetailedDTO.setFollowing(following);
         userDetailedDTO.setFollowers(followers);
         userDetailedDTO.setFriends(friends);
-        userDetailedDTO.setMessages(messageService.getMessages(user));
+        userDetailedDTO.setConversations(messageService.getConversations(user));
         List<Comment> comments = commentRepository.findAllByUser(user);
         ArrayList<CommentDTO> commentDTOS = new ArrayList<>();
         for (Comment userComment : comments) {
