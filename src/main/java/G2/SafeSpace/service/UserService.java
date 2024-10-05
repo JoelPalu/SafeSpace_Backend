@@ -157,11 +157,26 @@ public class UserService {
         userDetailedDTO.setUser(userDTO);
         userDetailedDTO.setPosts(user.getPosts().stream().map(PostDTO::new).collect(Collectors.toList()));
         userDetailedDTO.setLikedPosts(user.getLikedPosts().stream().map(PostDTO::new).collect(Collectors.toList()));
-        ArrayList<UserDTO> userDTOS = new ArrayList<>();
+        ArrayList<UserDTO> following = new ArrayList<>();
+        ArrayList<UserDTO> followers = new ArrayList<>();
+        ArrayList<UserDTO> friends = new ArrayList<>();
+        List<User> followersList = userRepository.findFollowers(user.getUserID());
         for (User friend : user.getFriends()) {
-            userDTOS.add(new UserDTO(friend, false));
+            //check if both users are following each other
+            if (friend.getFriends().contains(user)) {
+                friends.add(new UserDTO(friend, false));
+            } else {
+                // otherwise current user is just following
+                following.add(new UserDTO(friend, false));
+            }
         }
-        userDetailedDTO.setFriends(userDTOS);
+        for (User follower : followersList) {
+            // if other users have added current user but not vise versa
+            followers.add(new UserDTO(follower, false));
+        }
+        userDetailedDTO.setFollowing(following);
+        userDetailedDTO.setFollowers(followers);
+        userDetailedDTO.setFriends(friends);
         userDetailedDTO.setMessages(messageService.getMessages(user));
         List<Comment> comments = commentRepository.findAllByUser(user);
         ArrayList<CommentDTO> commentDTOS = new ArrayList<>();

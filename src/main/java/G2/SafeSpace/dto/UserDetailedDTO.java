@@ -8,6 +8,8 @@ public class UserDetailedDTO {
 
     private List<PostDTO> posts;
     private List<PostDTO> likedPosts;
+    private List<UserDTO> following;
+    private List<UserDTO> followers;
     private List<UserDTO> friends;
     private MessagesDTO messages;
     private List<CommentDTO> comments;
@@ -38,10 +40,23 @@ public class UserDetailedDTO {
         this.likedPosts = likedPosts;
     }
 
+    public List<UserDTO> getFollowing() {
+        return following;
+    }
+
+    public void setFollowing(List<UserDTO> following) {
+        this.following = following;
+    }
+
+    public List<UserDTO> getFollowers() {
+        return followers;
+    }
+    public void setFollowers(List<UserDTO> followers) {
+        this.followers = followers;
+    }
     public List<UserDTO> getFriends() {
         return friends;
     }
-
     public void setFriends(List<UserDTO> friends) {
         this.friends = friends;
     }

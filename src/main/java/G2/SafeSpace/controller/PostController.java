@@ -42,7 +42,6 @@ public class PostController {
     }
 
 
-    //REMOVED PATH VARIABLE FROM LIKEPOST
     @PostMapping("/post/{postID}/like")
     public ResponseEntity<String> likePost(@PathVariable int postID) {
         Optional<User> optionalUser = getCurrentUser();
@@ -62,7 +61,6 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
     }
 
-    // REMOVE PATHVARIABLE FROM REMOVELIKE
     @PostMapping("/post/{postID}/remove")
     public ResponseEntity<String> removeLike(@PathVariable int postID) {
         Optional<User> optionalUser = getCurrentUser();
@@ -83,7 +81,6 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Post not found");
     }
 
-    //REMOVE CUSTOM DTO CONTAINING USERID (POSTMAN POST_CONTENT, POST_PICTUREID)
     @PostMapping("/post")
     public ResponseEntity<String> createPost(@RequestBody Post newPost) {
         Optional<User> userOptional = getCurrentUser();
