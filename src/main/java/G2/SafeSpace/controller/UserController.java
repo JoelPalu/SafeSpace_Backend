@@ -71,7 +71,9 @@ public class UserController {
         }
         User user = userService.findUserById(id);
         if (user != null) {
-            return ResponseEntity.ok(new UserDTO(user, true));
+            UserDTO userDTO = new UserDTO(user, true);
+            userDTO.setUserData(userService.createUserData(user));
+            return ResponseEntity.ok(userDTO);
         } else {
             return ResponseEntity.notFound().build();
         }
@@ -86,7 +88,9 @@ public class UserController {
         }
         User user = userRepository.findByUsername(name);
         if (user != null) {
-            return ResponseEntity.ok(new UserDTO(user, true));
+            UserDTO userDTO = new UserDTO(user, true);
+            userDTO.setUserData(userService.createUserData(user));
+            return ResponseEntity.ok(userDTO);
         } else {
             return ResponseEntity.notFound().build();
         }

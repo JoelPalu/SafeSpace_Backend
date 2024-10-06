@@ -51,6 +51,7 @@ public class UserService {
             List<UserDTO> userDTOS = new ArrayList<>();
             for (User rawUser : rawUsers) {
                 UserDTO userDTO = new UserDTO(rawUser, true);
+                userDTO.setUserData(createUserData(rawUser));
                 userDTOS.add(userDTO);
             }
             return userDTOS;
@@ -157,8 +158,7 @@ public class UserService {
         userDetailedDTO.setUser(userDTO);
         userDetailedDTO.setPosts(user.getPosts().stream().map(PostDTO::new).collect(Collectors.toList()));
         userDetailedDTO.setLikedPosts(user.getLikedPosts().stream().map(PostDTO::new).collect(Collectors.toList()));
-        UserData userData = createUserData(user);
-        userDetailedDTO.setUserData(userData);
+        userDTO.setUserData(createUserData(user));
         userDetailedDTO.setConversations(messageService.getConversations(user));
         List<Comment> comments = commentRepository.findAllByUser(user);
         ArrayList<CommentDTO> commentDTOS = new ArrayList<>();

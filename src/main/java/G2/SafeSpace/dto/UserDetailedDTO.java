@@ -5,7 +5,6 @@ import java.util.List;
 public class UserDetailedDTO {
 
     private UserDTO user;
-    private UserData userData;
     private List<PostDTO> posts;
     private List<PostDTO> likedPosts;
     private List<ConversationDTO> conversations;
@@ -13,13 +12,6 @@ public class UserDetailedDTO {
 
     public UserDetailedDTO() {}
 
-
-    public UserData getUserData() {
-        return userData;
-    }
-    public void setUserData(UserData userData) {
-        this.userData = userData;
-    }
     public List<CommentDTO> getComments() {
         return comments;
     }
