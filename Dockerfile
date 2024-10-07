@@ -11,7 +11,7 @@ RUN mvn package
 FROM mysql:latest
 
 ENV MYSQL_DATABASE=g2_safespace
-ENV MYSQL_USER=pepega
+ENV MYSQL_USER=/run/secrets/mysql_user
 ENV MYSQL_PASSWORD_FILE=/run/secrets/mysql_user_password
 ENV MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
 
