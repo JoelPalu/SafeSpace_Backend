@@ -1,21 +1,18 @@
+FROM maven:latest AS build
 
-# Use an official Maven image as a parent image
-FROM maven:latest
-
-# Set metadata information
-LABEL authors="Kirill,Teemu,Miro,Sara"
-
-# Set the working directory in the container
 WORKDIR /app
 
-# Copy the pom.xml file to the container
 COPY pom.xml /app/
 
-# Copy the entire project to the container
 COPY . /app/
 
-# Package your application
 RUN mvn package
 
-# Run the main class (assuming your application has a main class)
+FROM mysql:latest
+
+LABEL authors="Kirill,Teemu,Miro,Sara"
+
+COPY --from=build /app/target/SafeSpaceAPI.jar /app/SafeSpaceAPI.jar
+
+
 CMD ["java", "-jar", "target/SafeSpaceAPI.jar"]
