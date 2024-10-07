@@ -1,24 +1,33 @@
 version: '3.8'
 
 services:
-  db:
-    image: mysql:8.0
+  mysql:
+    image: mysql:latest
     environment:
+      MYSQL_ROOT_PASSWORD: toor
       MYSQL_DATABASE: g2_safespace
       MYSQL_USER: pepega
       MYSQL_PASSWORD: clap
-      MYSQL_ROOT_PASSWORD: toor
     ports:
       - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
 
-  app:
-    build: .
+  springboot:
+    image: mirohin/safespace_server:server1.7 # This should be the name of your Spring Boot app image
+    depends_on:
+      - mysql
     environment:
-      MYSQL_DATABASE: g2_safespace
-      MYSQL_USER: pepega
-      MYSQL_PASSWORD: clap
-      MYSQL_ROOT_PASSWORD: toor
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/g2_safespace
+      SPRING_DATASOURCE_USERNAME: pepega
+      SPRING_DATASOURCE_PASSWORD: clap
     ports:
       - "8080:8080"
-    depends_on:
-      - db
+    networks:
+      - backend
+
+volumes:
+  mysql_data:
+
+networks:
+  backend:
