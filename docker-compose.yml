@@ -1,33 +1,38 @@
-version: '3.8'
-
+version: '3.7'
 services:
-  mysql:
-    image: mysql:latest
-    environment:
-      MYSQL_ROOT_PASSWORD: toor
-      MYSQL_DATABASE: g2_safespace
-      MYSQL_USER: pepega
-      MYSQL_PASSWORD: clap
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-
-  springboot:
-    image: mirohin/safespace_server:server1.7 # This should be the name of your Spring Boot app image
+      - 8090:8090
     depends_on:
-      - mysql
+      mysqldb:
+        condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/g2_safespace
-      SPRING_DATASOURCE_USERNAME: pepega
-      SPRING_DATASOURCE_PASSWORD: clap
-    ports:
-      - "8080:8080"
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/${MYSQL_DATABASE}
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD}
     networks:
-      - backend
-
+      - springboot-mysql-network
+  mysqldb:
+    image: mysql:8.0.33
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - springboot-mysql-network
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      retries: 10
+      interval: 3s
+      timeout: 30s
 volumes:
-  mysql_data:
-
+  mysql-data:
 networks:
-  backend:
+  springboot-mysql-network:
+    name: springboot-mysql-network
