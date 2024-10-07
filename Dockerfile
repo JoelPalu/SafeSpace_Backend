@@ -8,7 +8,7 @@ COPY . /app/
 
 RUN mvn package
 
-FROM mysql:latest
+FROM openjdk:17.0.1-jdk-slim
 
 ENV MYSQL_DATABASE=g2_safespace
 ENV MYSQL_USER=/run/secrets/mysql_user
@@ -22,4 +22,4 @@ LABEL authors="Kirill,Teemu,Miro,Sara"
 COPY --from=build /app/target/SafeSpaceAPI.jar /app/SafeSpaceAPI.jar
 
 
-CMD ["java", "-jar", "target/SafeSpaceAPI.jar"]
+CMD ["java", "-jar", "/app/SafeSpaceAPI.jar"]
