@@ -38,6 +38,7 @@ public class PostService {
             Post createdPost = postRepository.save(post);
             PostDTO postDTO = new PostDTO(createdPost);
             postDTO.setPostCreatorID(user.getUserID());
+            postDTO.setPostCreatorName(user.getUsername());
             eventPublisher.publishEvent(new PostCreatedEvent(this, postDTO));
             return createdPost;
         }
