@@ -11,6 +11,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,7 +38,11 @@ public class PostService {
             post.setPost_pictureID(post.getPost_pictureID());
             user.addPost(post);
             Post createdPost = postRepository.save(post);
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String formattedDate = now.format(formatter);
             PostDTO postDTO = new PostDTO(createdPost);
+            postDTO.setPostDate(formattedDate);
             postDTO.setPostCreatorID(user.getUserID());
             postDTO.setPostCreatorName(user.getUsername());
             eventPublisher.publishEvent(new PostCreatedEvent(this, postDTO));
