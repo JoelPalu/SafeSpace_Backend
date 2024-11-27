@@ -17,6 +17,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Service class for managing posts and their associated functionality.
+ * This class provides methods to create, update, delete posts, handle post ownership,
+ * associate users with posts, and manage comments on posts.
+ */
 @Service
 public class PostService {
 
@@ -24,6 +29,13 @@ public class PostService {
     private final ApplicationEventPublisher eventPublisher;
     private final CommentRepository commentRepository;
 
+    /**
+     * Constructs a PostService with the provided repositories and event publisher.
+     *
+     * @param postRepository    Repository for managing Post entities.
+     * @param commentRepository Repository for managing Comment entities.
+     * @param eventPublisher    Publisher for PostCreatedEvent.
+     */
     public PostService(PostRepository postRepository,
                        CommentRepository commentRepository,
                        ApplicationEventPublisher eventPublisher) {
@@ -32,6 +44,14 @@ public class PostService {
         this.commentRepository = commentRepository;
     }
 
+    /**
+     * Creates a new post and associates it with a user. The post is saved to the database
+     * and a PostCreatedEvent is published.
+     *
+     * @param post  The Post object to create.
+     * @param user  The user creating the post.
+     * @return      The created Post object, or null if the content is invalid.
+     */
     public Post createPost(Post post, User user) {
         if (post.getPost_content() != null || post.getPost_pictureID() != null) {
             post.setPost_content(post.getPost_content().trim());
@@ -51,11 +71,17 @@ public class PostService {
         return null;
     }
 
+    /**
+     * Updates an existing post with the provided content and picture ID.
+     *
+     * @param id          The ID of the post to update.
+     * @param updatedPost The updated Post object.
+     * @return            The updated Post object, or null if not found or invalid content.
+     */
     public Post updatePost(int id, Post updatedPost) {
         try {
             Optional<Post> currentPostOptional = postRepository.findById(id);
             if (currentPostOptional.isPresent()) {
-
                 String postContent = updatedPost.getPost_content();
                 String postPictureID = updatedPost.getPost_pictureID();
 
@@ -80,6 +106,12 @@ public class PostService {
         }
     }
 
+    /**
+     * Finds a post by its ID.
+     *
+     * @param id The ID of the post to find.
+     * @return   The found Post object, or null if not found.
+     */
     public Post findPostById(int id) {
         try {
             Optional<Post> currentPostOptional = postRepository.findById(id);
@@ -89,6 +121,12 @@ public class PostService {
         }
     }
 
+    /**
+     * Associates a user with a post and sets relevant post information in the provided PostDTO.
+     *
+     * @param post    The Post object to associate.
+     * @param postDTO The PostDTO object to set user-related information.
+     */
     public void associateUserToPost(Post post, PostDTO postDTO) {
         if (!post.getUsers().isEmpty()) {
             User postCreator = post.getUsers().iterator().next();
@@ -100,9 +138,14 @@ public class PostService {
             postDTO.setLikeCount(post.getLikedUsers().size());
             postDTO.setCommentCount(post.getComments().size());
         }
-
     }
 
+    /**
+     * Retrieves all posts from the repository, converts them into PostDTO objects,
+     * and associates each post with relevant user information.
+     *
+     * @return A list of PostDTO objects representing all posts.
+     */
     @Transactional(readOnly = true)
     public List<PostDTO> findAllPosts() {
         try {
@@ -119,6 +162,12 @@ public class PostService {
         }
     }
 
+    /**
+     * Deletes a post by its ID.
+     *
+     * @param id The ID of the post to delete.
+     * @return   True if the post was deleted successfully, false otherwise.
+     */
     public boolean deletePost(int id) {
         try {
             Optional<Post> optionalPost = postRepository.findById(id);
@@ -134,23 +183,48 @@ public class PostService {
         }
     }
 
+    /**
+     * Retrieves the comments associated with a post.
+     *
+     * @param post The Post object for which to retrieve comments.
+     * @return     A list of Comment objects associated with the post.
+     */
     public List<Comment> getPostComments(Post post) {
         return new ArrayList<>(post.getComments());
     }
 
-    // check if the post is owned by the user
+    /**
+     * Checks if the specified user is the owner of the given post.
+     *
+     * @param post The Post object to check ownership of.
+     * @param user The User object to check ownership against.
+     * @return     True if the user is the owner of the post, false otherwise.
+     */
     public boolean isPostOwner(Post post, User user) {
         return user.getPosts().contains(post);
     }
 
+    /**
+     * Checks if the specified user has already liked the given post.
+     *
+     * @param id    The ID of the post to check.
+     * @param user  The User object to check for liking the post.
+     * @return      True if the user has already liked the post, false otherwise.
+     */
     public boolean alreadyLikedPost(int id, User user) {
         return user.getLikedPosts().contains(findPostById(id));
     }
 
-    public Comment createComment(Comment comment, User user, Post post)
-    {
-        if (comment.getCommentContent() != null)
-        {
+    /**
+     * Creates a comment on a post, associates it with the user, and saves it.
+     *
+     * @param comment The Comment object to create.
+     * @param user    The user creating the comment.
+     * @param post    The post to associate the comment with.
+     * @return        The created Comment object, or null if content is invalid.
+     */
+    public Comment createComment(Comment comment, User user, Post post) {
+        if (comment.getCommentContent() != null) {
             comment.setUser(user);
             commentRepository.save(comment);
             post.addComment(comment);
@@ -160,6 +234,12 @@ public class PostService {
         return null;
     }
 
+    /**
+     * Finds a comment by its ID.
+     *
+     * @param commentID The ID of the comment to find.
+     * @return          The found Comment object, or null if not found.
+     */
     public Comment findCommentById(int commentID) {
         try {
             Optional<Comment> currentCommentOptional = commentRepository.findById(commentID);
@@ -169,6 +249,18 @@ public class PostService {
         }
     }
 
+    /**
+     * Deletes a comment by its ID.
+     * <p>
+     * This method attempts to find the comment with the given ID in the repository.
+     * If the comment is found, it is deleted and the method returns true.
+     * If no comment is found with the given ID, the method returns false.
+     * </p>
+     *
+     * @param commentID The ID of the comment to delete.
+     * @return          True if the comment was successfully deleted, false if no comment with the given ID was found.
+     * @throws RuntimeException If an error occurs while deleting the comment.
+     */
     public boolean deleteComment(int commentID) {
         try {
             Optional<Comment> optionalComment = commentRepository.findById(commentID);
@@ -184,6 +276,18 @@ public class PostService {
         }
     }
 
+    /**
+     * Updates the content of an existing comment identified by its ID.
+     * <p>
+     * This method attempts to find the comment with the given ID in the repository.
+     * If the comment is found, its content is updated with the new content provided
+     * in the updatedComment object, and the updated comment is saved to the repository.
+     * </p>
+     *
+     * @param commentID     The ID of the comment to update.
+     * @param updatedComment The Comment object containing the updated content.
+     * @throws RuntimeException If an error occurs while updating the comment.
+     */
     public void updateComment(int commentID, Comment updatedComment) {
         try {
             Optional<Comment> currentCommentOptional = commentRepository.findById(commentID);

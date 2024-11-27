@@ -6,16 +6,24 @@ import G2.SafeSpace.dto.PostDTO;
 import G2.SafeSpace.event.FriendrequestEvent;
 import G2.SafeSpace.event.LikeEvent;
 import G2.SafeSpace.event.PostCreatedEvent;
-import jakarta.annotation.PostConstruct;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.*;
 
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Service responsible for handling Server-Sent Events (SSE) for real-time notifications
+ * related to posts, likes, and friend requests. This service emits events to connected
+ * clients whenever a post is created, a like is added, or a friendship event occurs.
+ * <p>
+ * The service manages sinks for broadcasting posts, likes, and friendship requests
+ * to multiple subscribers. It allows clients to subscribe to these streams and receive
+ * real-time notifications.
+ * </p>
+ */
 @Service
 public class SSEService {
     // global feed
@@ -31,6 +39,15 @@ public class SSEService {
 
     // PERSONAL SINKS
 
+    /**
+     * Retrieves or creates a sink for friendship requests for a specific user.
+     * <p>
+     * This method ensures that each user has a unique sink to handle their friendship requests.
+     * </p>
+     *
+     * @param userId The ID of the user for whom the friendship request sink is required.
+     * @return A sink for the friendship requests for the given user.
+     */
     private Sinks.Many<FriendshipDTO> getFriendRequestSink(String userId) {
         return friendRequestSinks.computeIfAbsent(userId, id -> Sinks.many().unicast().onBackpressureBuffer());
     }
@@ -43,16 +60,34 @@ public class SSEService {
     //    return commentSinks.computeIfAbsent(userId, id -> Sinks.many().unicast().onBackpressureBuffer());
     //}
 
+    /**
+     * Event listener for handling post creation events. When a post is created, this method emits
+     * the new post event to the global post stream.
+     *
+     * @param event The event containing information about the newly created post.
+     */
     @EventListener
     public void handlePostCreatedEvent(PostCreatedEvent event) {
         emitNewPost(event.getPost());
     }
 
+    /**
+     * Event listener for handling like events. When a like is added, this method emits the
+     * like event to the global like stream.
+     *
+     * @param event The event containing information about the added like.
+     */
     @EventListener
     public void handleLikeAddedEvent(LikeEvent event) {
         likeSink.tryEmitNext(event.getLikeDTO());
     }
 
+    /**
+     * Event listener for handling friendship events. When a friendship request occurs, this method
+     * emits the event to the sinks of both the requester and the receiver.
+     *
+     * @param event The event containing information about the friendship request.
+     */
     @EventListener
     public void handleFriendshipEvent(FriendrequestEvent event) {
         FriendshipDTO friendshipDTO = event.getFriendshipDTO();
@@ -72,6 +107,12 @@ public class SSEService {
         }
     }
 
+    /**
+     * Combines the flux streams for post events and like events into a single flux
+     * stream that can be subscribed to by clients for receiving real-time notifications.
+     *
+     * @return A combined flux stream of Server-Sent Events for posts and likes.
+     */
     public Flux<ServerSentEvent<?>> getCombinedFlux() {
         Flux<ServerSentEvent<PostDTO>> postEvents = postSink.asFlux()
                 .map(post -> ServerSentEvent.<PostDTO>builder()
@@ -88,6 +129,15 @@ public class SSEService {
         return Flux.merge(postEvents, likeEvents);
     }
 
+    /**
+     * Emits a new post to the global post stream.
+     * <p>
+     * This method adds a new post to the post stream, making it available for clients
+     * subscribed to the post feed.
+     * </p>
+     *
+     * @param postDTO The PostDTO object representing the new post to emit.
+     */
     public void emitNewPost(PostDTO postDTO) {
         postSink.tryEmitNext(postDTO);
     }
