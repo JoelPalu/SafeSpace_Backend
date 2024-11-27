@@ -15,6 +15,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * The {@code MessageService} class provides services for managing messages between users.
+ * It includes functionalities for sending messages, retrieving conversations, updating and deleting messages,
+ * and checking ownership of messages.
+ */
 @Service
 public class MessageService {
 
@@ -31,12 +36,20 @@ public class MessageService {
         this.sendsMessageRepository = sendsMessageRepository;
     }
 
+    /**
+     * Sends a message from one user to another and creates an association in the {@link SendsMessage} entity.
+     *
+     * @param msgSender the ID of the sender user
+     * @param msgReceiver the ID of the receiver user
+     * @param messageContent the content of the message
+     * @return the {@link SendsMessage} entity representing the message association, or {@code null} if an error occurred
+     */
     public SendsMessage sendMessage(int msgSender, int msgReceiver, String messageContent) {
         Optional<User> sender = userRepository.findById(msgSender);
         Optional<User> receiver = userRepository.findById(msgReceiver);
         if (sender.isPresent() && receiver.isPresent() && !messageContent.trim().isEmpty()) {
-            
-            //create new message
+
+            // Create new message
             Message newMessage = new Message();
             newMessage.setMessageContent(messageContent);
             messageRepository.save(newMessage);
@@ -48,6 +61,12 @@ public class MessageService {
         return null;
     }
 
+    /**
+     * Retrieves a list of all conversations for the specified user, including the messages exchanged.
+     *
+     * @param user the user whose conversations are to be retrieved
+     * @return a list of {@link ConversationDTO} objects representing the user's conversations
+     */
     public List<ConversationDTO> getConversations(User user) {
         // Get all the messages sent or received by the user
         List<SendsMessage> allMessages = sendsMessageRepository.findBySenderOrReceiver(user, user);
@@ -102,19 +121,20 @@ public class MessageService {
         return conversations;
     }
 
-    // Goes through the list of conversation and finds the specific one
-    // where the given user is the participant
+    /**
+     * Finds a specific conversation in the list of conversations where the given user is a participant.
+     *
+     * @param withUser the user to find the conversation with
+     * @param conversations the list of all conversations
+     * @return the {@link ConversationDTO} for the specified user, or {@code null} if no conversation is found
+     */
     public ConversationDTO getConversation(User withUser, List<ConversationDTO> conversations) {
         if (withUser != null) {
             for (ConversationDTO conversation : conversations) {
                 int convoUserId = conversation.getWithUser().getId();
                 int targetUserId = withUser.getUserID();
 
-//                System.out.println("with user id: " + targetUserId +
-//                        ", convo user id: " + convoUserId +
-//                        " same? " + (convoUserId == targetUserId));
-
-                // return the existing conversation
+                // return the existing conversation if found
                 if (convoUserId == targetUserId) {
                     return conversation;
                 }
@@ -125,8 +145,13 @@ public class MessageService {
         return null;
     }
 
+    /**
+     * Retrieves all sent and received messages for a user in the form of {@link MessageDTO} objects.
+     *
+     * @param user the user whose messages are to be retrieved
+     * @return a {@link MessagesDTO} object containing the lists of sent and received messages
+     */
     public MessagesDTO getMessages(User user) {
-
         // Fetch sent and received messages
         List<SendsMessage> sentMessages = sendsMessageRepository.findBySender(user);
         List<SendsMessage> receivedMessages = sendsMessageRepository.findByReceiver(user);
@@ -144,6 +169,13 @@ public class MessageService {
         return new MessagesDTO(sentMessageDTOs, receivedMessageDTOs);
     }
 
+    /**
+     * Deletes a message if the provided sender is the owner of the message.
+     *
+     * @param msgSender the user attempting to delete the message
+     * @param message the {@link Message} to be deleted
+     * @return {@code true} if the message was deleted successfully, {@code false} otherwise
+     */
     public boolean deleteMessage(User msgSender, Message message) {
         SendsMessage result = sendsMessageRepository.findByMessage(message);
         if (result != null) {
@@ -157,6 +189,12 @@ public class MessageService {
         return false;
     }
 
+    /**
+     * Updates the content of an existing message.
+     *
+     * @param message the {@link MessageUpdate} DTO containing the message ID and updated content
+     * @return {@code true} if the message was updated successfully, {@code false} otherwise
+     */
     public boolean updateMessage(MessageUpdate message) {
         Optional<Message> currentMessage = messageRepository.findById(message.getMessageID());
         if (currentMessage.isPresent()) {
@@ -167,6 +205,13 @@ public class MessageService {
         return false;
     }
 
+    /**
+     * Checks if the given user is the owner of the message with the specified ID.
+     *
+     * @param messageID the ID of the message
+     * @param sender the user attempting to check ownership of the message
+     * @return {@code true} if the user is the owner of the message, {@code false} otherwise
+     */
     public boolean isMessageOwner(int messageID, User sender) {
         Optional<Message> message = messageRepository.findById(messageID);
         if (message.isPresent()) {

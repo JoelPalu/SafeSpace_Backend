@@ -1,7 +1,11 @@
+/**
+ * Configuration class to provide security-related beans for the application.
+ * Handles the setup of authentication manager, authentication provider,
+ * password encoder, and user details service.
+ */
 package G2.SafeSpace.config;
 
 import G2.SafeSpace.repository.UserRepository;
-import G2.SafeSpace.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,12 +23,24 @@ public class SecurityBeanInjector {
     @Autowired
     private UserRepository userRepository;
 
+    /**
+     * Provides an {@link AuthenticationManager} bean.
+     *
+     * @param authenticationConfiguration the {@link AuthenticationConfiguration} used to configure the manager.
+     * @return the configured {@link AuthenticationManager}.
+     * @throws Exception if an error occurs during configuration.
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-         return authenticationConfiguration.getAuthenticationManager(); //providerManager implements the authentication manager interface
-
+        return authenticationConfiguration.getAuthenticationManager(); //providerManager implements the authentication manager interface
     }
 
+    /**
+     * Provides an {@link AuthenticationProvider} bean configured with a {@link DaoAuthenticationProvider}.
+     *
+     * @return the configured {@link AuthenticationProvider}.
+     * @throws Exception if an error occurs during configuration.
+     */
     @Bean
     public AuthenticationProvider authenticationProvider() throws Exception {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -34,11 +50,21 @@ public class SecurityBeanInjector {
         return provider;
     }
 
+    /**
+     * Provides a {@link PasswordEncoder} bean using the {@link BCryptPasswordEncoder}.
+     *
+     * @return a {@link PasswordEncoder} instance.
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * Provides a {@link UserDetailsService} bean to load user details by username.
+     *
+     * @return a {@link UserDetailsService} instance that retrieves user details from the {@link UserRepository}.
+     */
     @Bean
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByUsername(username);
