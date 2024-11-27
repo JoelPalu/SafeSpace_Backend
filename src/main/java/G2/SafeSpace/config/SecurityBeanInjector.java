@@ -15,21 +15,27 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SecurityBeanInjector {
+    private final UserRepository userRepository;
+    private final UserDetailsService userDetailsService;
+    private final PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private UserRepository userRepository;
+    public SecurityBeanInjector(UserRepository userRepository, UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.userDetailsService = userDetailsService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-         return authenticationConfiguration.getAuthenticationManager(); //providerManager implements the authentication manager interface
+        return authenticationConfiguration.getAuthenticationManager(); //providerManager implements the authentication manager interface
 
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() throws Exception {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService());
-        provider.setPasswordEncoder(passwordEncoder());
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
 
         return provider;
     }

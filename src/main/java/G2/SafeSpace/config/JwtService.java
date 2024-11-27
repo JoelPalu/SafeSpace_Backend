@@ -45,8 +45,11 @@ public class JwtService {
     }
 
     public String extractUsername(String jwt) {
-
-        return extractedAllClaims(jwt).getSubject();
+        Claims claims = extractedAllClaims(jwt);
+        if (claims == null) {
+            throw new NullPointerException("JWT is null");
+        }
+        return claims.getSubject();
     }
 
     private Claims extractedAllClaims(String jwt) {

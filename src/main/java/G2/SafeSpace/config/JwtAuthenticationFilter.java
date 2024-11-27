@@ -19,14 +19,13 @@ import java.io.IOException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    private final JwtService jwtService;
+    private final UserRepository userRepository;
 
-
-    @Autowired
-    private JwtService jwtService;
-
-    @Autowired
-    private UserRepository userRepository;
-
+    public JwtAuthenticationFilter(JwtService jwtService, UserRepository userRepository) {
+        this.jwtService = jwtService;
+        this.userRepository = userRepository;
+    }
 
 
     @Override
@@ -35,7 +34,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String authHeader = request.getHeader("Authorization");
 
-        if(authHeader == null || !authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -44,15 +43,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String jwt = authHeader.split(" ")[1];
 
         //3. obtain subject in jwt
-        String username = null;
-        try{
+        String username;
+        try {
             username = jwtService.extractUsername(jwt);
         } catch (Exception e) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
             return;
         }
-
-
 
 
         //4. set authenticate object inside security context
