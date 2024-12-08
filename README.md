@@ -16,17 +16,6 @@ java -jar SafeSpaceAPI.jar
 ```
 
 
-## Tietokannan Rakenne 
-
-| ER-kaavio |
-| --- |
-|<img src="https://github.com/user-attachments/assets/a9bb0859-c9b9-4d7e-8b86-8b83695180e1">|
-
-| Relaatiokaavio |
-| --- |
-|<img src="https://github.com/user-attachments/assets/0d8bf1e7-0006-4fdb-bdc2-36f7d100d51e">|
-
-
 
 ## Käytetyt työkalut
 
